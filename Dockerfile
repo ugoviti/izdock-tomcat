@@ -58,7 +58,8 @@ ENV APP_SHARED_DEFAULT    "${APP_HOME}/shared"
 
 # specific app configuration variables
 #ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
-ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms512m -Xmx512m"
+#ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms512m -Xmx512m"
+ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
 ENV CATALINA_HOME "${APP_HOME}"
 ENV PATH          "${PATH}:/opt/jdk/bin:${CATALINA_HOME}/bin"
 ENV UMASK         "0002"
