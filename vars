@@ -1,0 +1,9 @@
+build=55
+
+image_from=""
+
+tag_prefix=""
+tag_suffix=""
+tag_ver_major=8
+tag_ver_minor=8.5
+tag_ver_full=8.5.32
