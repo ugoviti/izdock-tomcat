@@ -9,14 +9,16 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # default versions
 ARG tag_ver_major=8
-ARG tag_ver_minor=8.5
-ARG tag_ver_full=8.5.32
+ARG tag_ver_minor=5
+ARG tag_ver_patch=32
+ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${tag_ver_major}
 ENV TOMCAT_VERSION_MINOR  ${tag_ver_minor}
-ENV TOMCAT_VERSION_FULL   ${tag_ver_full}
-#ENV TOMCAT_VERSION_NATIVE 1.2.17
+ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
+ENV TOMCAT_VERSION        ${tag_ver}
+#ENV TOMCAT_NATIVE_VERSION 1.2.17
 
 ENV MYSQL_CONNECTOR_J     8.0.11
 ENV AS400_CONNECTOR_J     9.5
@@ -119,13 +121,13 @@ RUN set -x \
 #        F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE \
 #        F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23 \
   && update-ca-certificates \
-  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION_FULL}/bin/apache-tomcat-${TOMCAT_VERSION_FULL}.tar.gz" \
-  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION_FULL}/bin/apache-tomcat-${TOMCAT_VERSION_FULL}.tar.gz.asc" \
-#  && gpg --verify "apache-tomcat-${TOMCAT_VERSION_FULL}.tar.gz.asc" \
-  && tar -xf "apache-tomcat-${TOMCAT_VERSION_FULL}.tar.gz" --strip-components=1 \
+  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
+  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
+#  && gpg --verify "apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
+  && tar -xf "apache-tomcat-${TOMCAT_VERSION}.tar.gz" --strip-components=1 \
   && rm bin/*.bat \
   && cp -a webapps webapps-dist \
-  && rm "apache-tomcat-${TOMCAT_VERSION_FULL}.tar.gz" \
+  && rm "apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
   # include misc jars
   && cd "${CATALINA_HOME}/lib" \
   #&& wget -q "http://central.maven.org/maven2/commons-codec/commons-codec/1.11/commons-codec-1.11.jar" \
@@ -186,8 +188,8 @@ RUN set -x \
   #&& wget -q http://central.maven.org/maven2/redis/clients/jedis/2.9.0/jedis-2.9.0.jar \
 #  && cd /tmp \
 # tomcat apr native support build from source
-#  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-connectors/native/${TOMCAT_VERSION_NATIVE}/source/tomcat-native-${TOMCAT_VERSION_NATIVE}-src.tar.gz" \
-#  && cd /tmp && tar -xf "tomcat-native-${TOMCAT_VERSION_NATIVE}-src.tar.gz" && cd "tomcat-native-${TOMCAT_VERSION_NATIVE}-src/native" \
+#  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-connectors/native/${TOMCAT_NATIVE_VERSION}/source/tomcat-native-${TOMCAT_NATIVE_VERSION}-src.tar.gz" \
+#  && cd /tmp && tar -xf "tomcat-native-${TOMCAT_NATIVE_VERSION}-src.tar.gz" && cd "tomcat-native-${TOMCAT_NATIVE_VERSION}-src/native" \
 #  && ./configure --with-java-home="$JAVA_HOME" --with-ssl=no --prefix="$CATALINA_HOME" \
 #  && make install \
 #  && ln -sv "${CATALINA_HOME}/lib/libtcnative-1.so" "/usr/lib/" && ln -sv "/lib/libz.so.1" "/usr/lib/libz.so.1" \
@@ -251,4 +253,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER
+ENV APP_VER "7.0.90-29"
