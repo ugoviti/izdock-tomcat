@@ -1,9 +1,9 @@
-build=55
 
-image_from=""
 
-tag_prefix=""
-tag_suffix=""
+build=59
+
+tag_latest=yes
+
 tag_ver_major=8
-tag_ver_minor=8.5
-tag_ver_full=8.5.32
+tag_ver_minor=5
+tag_ver_patch=33
