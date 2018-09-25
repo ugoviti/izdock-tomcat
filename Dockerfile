@@ -10,7 +10,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=32
+ARG tag_ver_patch=34
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -20,7 +20,7 @@ ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
 ENV TOMCAT_VERSION        ${tag_ver}
 #ENV TOMCAT_NATIVE_VERSION 1.2.17
 
-ENV MYSQL_CONNECTOR_J     8.0.11
+ENV MYSQL_CONNECTOR_J     8.0.12
 ENV AS400_CONNECTOR_J     9.5
 
 # app plugins enabled
@@ -253,4 +253,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER "7.0.90-29"
+ENV APP_VER "8.5.34-60"
