@@ -54,4 +54,4 @@ app_pre_hooks
 app_post_hooks
 echo "========================================================================"
 # exec entrypoint arguments
-[ ! -z "${APP_USERNAME}" ] && set -x && exec su -m ${APP_USERNAME} -s /bin/bash -c "$@" || exec "$@"
+[ ! -z "${APP_USR}" ] && set -x && exec su -m ${APP_USR} -s /bin/bash -c "$@" || exec "$@"

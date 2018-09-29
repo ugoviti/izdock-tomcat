@@ -2,7 +2,7 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
--	`8.5.33-BUILD`, `8.5.33`, `8.5`, `8`, `latest`
+-	`8.5.34-BUILD`, `8.5.34`, `8.5`, `8`, `latest`
 -	`7.0.90-BUILD`, `7.0.90`, `7.0`, `7`
 
 Where **BUILD** is the build number (look into project [Tags](tags/) page to discover the latest BUILD NUMBER)
@@ -65,8 +65,8 @@ ENV APP_SHUTDOWN_PORT     8005
 ENV APP_REMOTE_MANAGEMENT 1
 ENV APP_UID               91
 ENV APP_GID               91
-ENV APP_USERNAME          "tomcat"
-ENV APP_GROUP             "tomcat"
+ENV APP_USR               "tomcat"
+ENV APP_GRP               "tomcat"
 ENV APP_ADMIN_USERNAME    "manager"
 ENV APP_ADMIN_PASSWORD    ""
 ```

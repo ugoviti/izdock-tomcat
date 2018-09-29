@@ -43,8 +43,8 @@ ENV APP_SHUTDOWN_PORT     8005
 ENV APP_REMOTE_MANAGEMENT 1
 ENV APP_UID               91
 ENV APP_GID               91
-ENV APP_USERNAME          "tomcat"
-ENV APP_GROUP             "tomcat"
+ENV APP_USR               "tomcat"
+ENV APP_GRP               "tomcat"
 ENV APP_ADMIN_USERNAME    "manager"
 ENV APP_ADMIN_PASSWORD    ""
 
@@ -224,8 +224,8 @@ RUN set -x \
         && adduser -u 82 -D -S -G www-data www-data
 
 # pre entrypoint management
-RUN addgroup -g "${APP_GID}" "${APP_GROUP}" && adduser -h "${CATALINA_HOME}" -u "${APP_UID}" -D -H -s /sbin/nologin -g "$APP" -G "${APP_GROUP}" "${APP_USERNAME}"
-RUN chown -R "${APP_USERNAME}":"${APP_GROUP}" "${CATALINA_HOME}"/
+RUN addgroup -g "${APP_GID}" "${APP_GRP}" && adduser -h "${CATALINA_HOME}" -u "${APP_UID}" -D -H -s /sbin/nologin -g "$APP" -G "${APP_GRP}" "${APP_USR}"
+RUN chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/
 
 # install gcsfuse
 COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
@@ -247,7 +247,7 @@ VOLUME ${APP_HOME}
 #VOLUME ${APP_SHARED_DEFAULT}
 
 # turn on tomcat user
-#USER ${APP_USERNAME}
+#USER ${APP_USR}
 
 # entrypoint
 ENTRYPOINT ["tini", "--"]
