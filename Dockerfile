@@ -253,4 +253,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER "8.5.34-60"
+ENV APP_VER "7.0.91-30"
