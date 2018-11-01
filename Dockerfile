@@ -20,8 +20,8 @@ ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
 ENV TOMCAT_VERSION        ${tag_ver}
 #ENV TOMCAT_NATIVE_VERSION 1.2.17
 
-ENV MYSQL_CONNECTOR_J     8.0.12
-ENV AS400_CONNECTOR_J     9.5
+ENV MYSQL_CONNECTOR_J     8.0.13
+ENV AS400_CONNECTOR_J     9.6
 
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
@@ -96,11 +96,12 @@ RUN set -x \
 	tar \
 	bzip2 \
 	zip \
-  	imagemagick \
-  && apk add --virtual \
-	.build-dependencies \
 	file \
 	wget \
+  curl \
+  imagemagick \
+  && apk add --virtual \
+	.build-dependencies \
 #	libtool \
 #	alpine-sdk \
 #	apr-dev \
@@ -253,4 +254,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER "7.0.91-30"
+ENV APP_VER "7.0.91-31"
