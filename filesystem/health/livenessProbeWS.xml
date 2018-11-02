@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsec="http://WSEcom2/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <wsec:CheckServices>
+         <pcheckDb>-1</pcheckDb>
+      </wsec:CheckServices>
+   </soapenv:Body>
+</soapenv:Envelope>
