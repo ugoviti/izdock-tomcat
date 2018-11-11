@@ -16,7 +16,7 @@ cd "${0%/*}"
 [ ! -e "$WADIR" ] && echo "the directory $WADIR doesn't exist. exiting..." && exit 1
 [ ! -e "$SOAPFILE" ] && echo "the input soap file $SOAPFILE doesn't exist. exiting..." && exit 1
 
-for WEBAPP in ${WADIR}/*
+for WEBAPP in $(find ${WADIR}/ -type d -maxdepth 1)
 do
   WEBAPP=${WEBAPP%*/}
   WEBAPP=${WEBAPP##*/}
@@ -24,7 +24,9 @@ do
       URL=${BASEURL}/${WEBAPP}/${WASUBPATH}
       echo "checking URL: ${URL}"
       http_code=$(curl --write-out "%{http_code}\n" --silent --header 'Content-Type: text/xml;charset=UTF-8' --data @"${SOAPFILE}" "${URL}" --connect-timeout $TIMEOUT --output /dev/null)
-      [[ $http_code -ne 200 ]] && echo "WARNING: Return code: $http_code" && exit 1
+      if [[ $http_code -ne 200 ]]; then
+        echo "WARNING: Return code: $http_code"
+        exit 1
+      fi
   fi
 done
-
