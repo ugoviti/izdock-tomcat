@@ -2,8 +2,8 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
--	`8.5.34-BUILD`, `8.5.34`, `8.5`, `8`, `latest`
--	`7.0.91-BUILD`, `7.0.91`, `7.0`, `7`
+-	`8.5.35-BUILD`, `8.5.35`, `8.5`, `8`, `latest`
+-	`7.0.92-BUILD`, `7.0.92`, `7.0`, `7`
 
 Where **BUILD** is the build number (look into project [Tags](tags/) page to discover the latest BUILD NUMBER)
 

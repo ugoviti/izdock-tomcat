@@ -10,7 +10,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=34
+ARG tag_ver_patch=35
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -254,4 +254,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER "8.5.34-68"
+ENV APP_VER "8.5.35-69"
