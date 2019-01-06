@@ -1,16 +1,22 @@
-FROM golang:1.10.3-alpine3.8 AS gcsfuse
-RUN apk add --no-cache git
-ENV GOPATH /go
-RUN go get -u github.com/googlecloudplatform/gcsfuse
+ARG image_from=tomcat:8.5.37-jre8-slim
 
-FROM alpine:3.8
+#FROM golang:1.10.3 AS gcsfuse
+#RUN apk add --no-cache git
+#ENV GOPATH /go
+#RUN go get -u github.com/googlecloudplatform/gcsfuse
+
+FROM ${image_from}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
-# default versions
+# external libraries versions
+ARG MYSQL_CONNECTOR_J=8.0.13
+ARG AS400_CONNECTOR_J=9.6
+
+# default app versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=35
+ARG tag_ver_patch=37
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -18,10 +24,11 @@ ENV TOMCAT_VERSION_MAJOR  ${tag_ver_major}
 ENV TOMCAT_VERSION_MINOR  ${tag_ver_minor}
 ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
 ENV TOMCAT_VERSION        ${tag_ver}
-#ENV TOMCAT_NATIVE_VERSION 1.2.17
+#ENV TOMCAT_NATIVE_VERSION 1.2.19
 
-ENV MYSQL_CONNECTOR_J     8.0.13
-ENV AS400_CONNECTOR_J     9.6
+# debian specific
+ENV TINI_VERSION          0.18.0
+ENV DEBIAN_FRONTEND       noninteractive
 
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
@@ -31,7 +38,7 @@ ENV APP_PLUGIN_REDISSON   0
 # generic app configuration variables
 ENV APP                   "Tomcat Web Application Server"
 ENV APP_NAME              "tomcat"
-ENV APP_HOME              "/opt/tomcat"
+ENV APP_HOME              "/usr/local/tomcat"
 ENV APP_CONF              ""
 ENV APP_DATA              ""
 ENV APP_LOGS              ""
@@ -63,7 +70,7 @@ ENV APP_SHARED_DEFAULT    "${APP_HOME}/shared"
 #ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms512m -Xmx512m"
 ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
 ENV CATALINA_HOME "${APP_HOME}"
-ENV PATH          "${PATH}:/opt/jdk/bin:${CATALINA_HOME}/bin"
+ENV PATH          "${PATH}:${CATALINA_HOME}/bin"
 ENV UMASK         "0002"
 
 WORKDIR ${CATALINA_HOME}
@@ -74,39 +81,25 @@ WORKDIR ${CATALINA_HOME}
 # https://github.com/Unidata/tomcat-docker
 ENV APACHE_MIRROR         "https://archive.apache.org/dist"
 
-RUN set -x \
-  && apk --update --no-cache upgrade \
-  # openjdk 7/8
-  && if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
-	apk add openjdk8-jre  \
-	  tomcat-native ; \
-	else \
-	apk add openjdk7-jre ; \
-     fi \
-  && apk add \
-	tini \
-	bash \
-	apr \
-	graphviz \
-	fontconfig \
-	ttf-dejavu \
-	ttf-opensans \
-	tcpdump \
-	socat \
-	tar \
-	bzip2 \
-	zip \
-	file \
-	wget \
-  curl \
-  imagemagick \
-  && apk add --virtual \
-	.build-dependencies \
-#	libtool \
-#	alpine-sdk \
-#	apr-dev \
-	ca-certificates \
-	gnupg \
+RUN set -xe \
+  && apt-get update && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    procps \
+    net-tools \
+    iputils-ping \
+	  graphviz \
+	  fontconfig \
+	  fonts-dejavu \
+	  tar \
+	  bzip2 \
+	  zip \
+	  file \
+	  wget \
+    curl \
+    imagemagick \
+	  ca-certificates \
+    gnupg \
 #  && gpg --keyserver gnupg.pub --recv-keys \
 #        05AB33110949707C93A279E3D3EFE6B686867BA6 \
 #        07E48665A34DCAFAE522E5E6266191C37C037D42 \
@@ -117,39 +110,40 @@ RUN set -x \
 #        79F7026C690BAA50B92CD8B66A3AD3F4F22C4FED \
 #        9BA44C2621385CB966EBA586F72C284D731FABEE \
 #        A27677289986DB50844682F8ACB77FC2E86E29AC \
-##        A9C5DF4D22E99998D9875A5110C01C5A2F6059E7 \
+#        A9C5DF4D22E99998D9875A5110C01C5A2F6059E7 \
 #        DCFD35E0BF8CA7344752DE8B6FB21E8933C60243 \
 #        F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE \
 #        F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23 \
   && update-ca-certificates \
-  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
-  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
+  # install tini as init container
+  && curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini_$TINI_VERSION-amd64.deb -o tini_$TINI_VERSION-amd64.deb \
+  && dpkg -i tini_$TINI_VERSION-amd64.deb \
+  && rm -f tini_$TINI_VERSION-amd64.deb \
+#  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
+#  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
 #  && gpg --verify "apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
-  && tar -xf "apache-tomcat-${TOMCAT_VERSION}.tar.gz" --strip-components=1 \
-  && rm bin/*.bat \
-  && cp -a webapps webapps-dist \
-  && rm "apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
+#  && tar -xf "apache-tomcat-${TOMCAT_VERSION}.tar.gz" --strip-components=1 \
+#  && rm bin/*.bat \
+#  && cp -a webapps webapps-dist \
+#  && rm "apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
   # include misc jars
   && cd "${CATALINA_HOME}/lib" \
   #&& wget -q "http://central.maven.org/maven2/commons-codec/commons-codec/1.11/commons-codec-1.11.jar" \
   # mysql java connector
   && if [ $APP_PLUGIN_MYSQL = 1 ]; then \
-     wget -q --no-check-certificate "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" \ 
-     #&& tar -xf "mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" "mysql-connector-java-${MYSQL_CONNECTOR_J}/mysql-connector-java-${MYSQL_CONNECTOR_J}-bin.jar" --strip-components=1 # <= 5.x \
-     && tar -xf "mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" "mysql-connector-java-${MYSQL_CONNECTOR_J}/mysql-connector-java-${MYSQL_CONNECTOR_J}.jar" \
-     && rm "mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" ; \
+     curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_CONNECTOR_J}.jar" ; \
      fi \
   # as400 java connector
   && if [ $APP_PLUGIN_AS400 = 1 ]; then \
-     wget -q --no-check-certificate "http://central.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" ; \ 
+     curl -fSL --connect-timeout 10 "http://central.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" ; \
      fi \
   # redis session manager
   && if [ $APP_PLUGIN_REDISSON = 1 ]; then \
-     wget -q "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/3.6.0/redisson-all-3.6.0.jar" \
+     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/3.6.0/redisson-all-3.6.0.jar" -o "redisson-all-3.6.0.jar" \
      && if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
-       wget -q "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-8/3.6.0/redisson-tomcat-8-3.6.0.jar" ; \
+       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-8/3.6.0/redisson-tomcat-8-3.6.0.jar" -o "redisson-tomcat-8-3.6.0.jar"; \
       else \
-       wget -q "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-7/3.6.0/redisson-tomcat-7-3.6.0.jar" ; \
+       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-7/3.6.0/redisson-tomcat-7-3.6.0.jar" -o "redisson-tomcat-7-3.6.0.jar"; \
      fi ;\
      fi \
   # tests
@@ -195,11 +189,15 @@ RUN set -x \
 #  && make install \
 #  && ln -sv "${CATALINA_HOME}/lib/libtcnative-1.so" "/usr/lib/" && ln -sv "/lib/libz.so.1" "/usr/lib/libz.so.1" \
   && cd / \
+  # disable ssl engine
   && sed -i 's/SSLEngine="on"/SSLEngine="off"/g' "${CATALINA_HOME}/conf/server.xml" \
+  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
+  && sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties \
   # test: fix infinite dns cache jvm
   #&& echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security \
-  && apk del --purge .build-dependencies \
-  && rm -rf /var/cache/apk/* /tmp/* 
+  # cleanup system
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/* /tmp/*
 
 
 # verify Tomcat Native is working properly
@@ -214,22 +212,28 @@ RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
         fi \
     fi
 
-# remove unnecessary components
-RUN	rm -f  ${CATALINA_HOME}/bin/*.bat \
+# remove unnecessary default components
+RUN set -xe \
+ && rm -f  ${CATALINA_HOME}/bin/*.bat \
  &&	rm -rf ${CATALINA_HOME}/webapps/docs \
- &&	rm -rf ${CATALINA_HOME}/webapps/examples 
+ &&	rm -rf ${CATALINA_HOME}/webapps/examples
 
 # alpine user www-data compatibility
-RUN set -x \
-        && addgroup -g 82 -S www-data \
-        && adduser -u 82 -D -S -G www-data www-data
+#RUN set -x \
+#        && addgroup -g 82 -S www-data \
+#        && adduser -u 82 -D -S -G www-data www-data
 
 # pre entrypoint management
-RUN addgroup -g "${APP_GID}" "${APP_GRP}" && adduser -h "${CATALINA_HOME}" -u "${APP_UID}" -D -H -s /sbin/nologin -g "$APP" -G "${APP_GRP}" "${APP_USR}"
-RUN chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/
+RUN set -xe \
+  && umask $UMASK \
+  && groupadd -g "${APP_GID}" "${APP_GRP}" \
+  && useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP" -g "${APP_GRP}" "${APP_USR}" \
+  && chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ \
+  # custom tomcat path compatibility
+  && ln -s "${APP_HOME}" /opt/tomcat
 
 # install gcsfuse
-COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
+#COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
 
 # add files to container
 ADD Dockerfile /
@@ -254,4 +258,4 @@ VOLUME ${APP_HOME}
 ENTRYPOINT ["tini", "--"]
 CMD ["/entrypoint.sh", "catalina.sh run"]
 
-ENV APP_VER "8.5.35-72"
+ENV APP_VER "8.5.37-103"

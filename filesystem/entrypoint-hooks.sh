@@ -1,5 +1,7 @@
 #!/bin/sh
 
+: ${UMASK:=0002} # (**0002**) default umask when creating new files
+
 # tomcat hooks
 hooks_always() {
         echo "=> Hooks ALWAYS - ALL: Executing $APP configuration hooks..."
@@ -15,23 +17,29 @@ APP_ADMIN_PASSWORD="${APP_ADMIN_PASSWORD:-$(head /dev/urandom | tr -dc A-Za-z0-9
 # use the env variables to make initial configuration changes before starting for the first time
 APP_REMOTE_MANAGEMENT="${APP_REMOTE_MANAGEMENT:-0}"
 
+echo "--> setting default system umask to $UMASK "
+# set default umask
+export UMASK
+umask $UMASK
+sed "s/^UMASK.*/UMASK $UMASK/" -i /etc/login.defs
+
 if [ $APP_RECONFIG = 0 ]; then
   echo "==> not reconfiguring $APP because APP_RECONFIG=0"
 else
+
 # tomcat Catalina/localhost/manager.xml (allow remote management)
 if [ $APP_REMOTE_MANAGEMENT = 1 ]; then
-echo "==> configuring ${APP_CONF_DEFAULT}/Catalina/localhost/manager.xml"
-mkdir -p "${APP_CONF_DEFAULT}/Catalina/localhost"
-echo '<Context privileged="true" antiResourceLocking="false" docBase="${catalina.home}/webapps/manager">
-<Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
-</Context>' > "${APP_CONF_DEFAULT}/Catalina/localhost/manager.xml"
+  echo "--> configuring ${APP_CONF_DEFAULT}/Catalina/localhost/manager.xml"
+  mkdir -p "${APP_CONF_DEFAULT}/Catalina/localhost"
+  echo '<Context privileged="true" antiResourceLocking="false" docBase="${catalina.home}/webapps/manager">
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
+  </Context>' > "${APP_CONF_DEFAULT}/Catalina/localhost/manager.xml"
 
-echo '<Context antiResourceLocking="false" privileged="true" />' > "${APP_DATA_DEFAULT}/manager/META-INF/context.xml"
-
+  echo '<Context antiResourceLocking="false" privileged="true" />' > "${APP_DATA_DEFAULT}/manager/META-INF/context.xml"
 fi
 
 # tomcat context.xml
-echo "==> configuring ${APP_CONF_DEFAULT}/context.xml"
+echo "--> configuring ${APP_CONF_DEFAULT}/context.xml"
 echo '<?xml version="1.0" encoding="UTF-8"?>
 <Context antiResourceLocking="false" privileged="true" >
   <WatchedResource>WEB-INF/web.xml</WatchedResource>
@@ -48,7 +56,6 @@ local MATCH='<Connector port="8009" protocol="AJP\/1.3"'
 sed "/$MATCH/a maxThreads=\"512\"" -i "${APP_CONF_DEFAULT}/server.xml"
 sed "/$MATCH/a maxConnections=\"512\"" -i "${APP_CONF_DEFAULT}/server.xml"
 fi
-
 
 # create web admin user
 echo "==> creating $APP_ADMIN_USERNAME user with a ${PASSWORD_TYPE} password in ${APP}"

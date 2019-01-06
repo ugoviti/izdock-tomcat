@@ -20,7 +20,7 @@ if [ $APP_RELINK = 1 ]; then
 [ ! -z "${APP_WORK}" ] && relink_dir "${APP_WORK_DEFAULT}" "${APP_WORK}"
 [ ! -z "${APP_SHARED}" ] && relink_dir "${APP_SHARED_DEFAULT}" "${APP_SHARED}"
 else
-  echo "Skipping APP directories relinking"
+  echo "=> Skipping APP directories relinking"
 fi
 }
 
@@ -53,5 +53,9 @@ relink_dir() {
 app_pre_hooks
 app_post_hooks
 echo "========================================================================"
+# set default umask
+export UMASK
+umask $UMASK
+
 # exec entrypoint arguments
-[ ! -z "${APP_USR}" ] && set -x && exec su -m ${APP_USR} -s /bin/bash -c "$@" || exec "$@"
+[ ! -z "${APP_USR}" ] && set -x && exec runuser -p -u ${APP_USR} -- $@ || exec $@

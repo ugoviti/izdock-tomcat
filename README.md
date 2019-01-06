@@ -2,7 +2,7 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
--	`8.5.35-BUILD`, `8.5.35`, `8.5`, `8`, `latest`
+-	`8.5.34-BUILD`, `8.5.34`, `8.5`, `8`, `latest`
 -	`7.0.92-BUILD`, `7.0.92`, `7.0`, `7`
 
 Where **BUILD** is the build number (look into project [Tags](tags/) page to discover the latest BUILD NUMBER)
@@ -11,12 +11,12 @@ Where **BUILD** is the build number (look into project [Tags](tags/) page to dis
 - https://github.com/ugoviti/izdock/blob/master/tomcat/Dockerfile
 
 # Features
-- Small image footprint (based on [Alpine Linux 3.8](/_/alpine/) image)
+- Small image footprint (based on [Linux Debian](/_/debian/) image)
 - Using OpenJDK 1.8 for Tomcat 8.x and OpenJDK 1.7 for Tomcat 7.x
 - APR Native Libraries compiled
+- Many customizable variables to use
 - Included MySQL Connector 8.x
 - Included AS400 Connector 9.x
-- Many customizable variables to use
 - GCSFuse support to mount Google Cloud Bucket share
 - Using [tini](https://github.com/krallin/tini) as init process
 
