@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 : ${UMASK:=0002} # (**0002**) default umask when creating new files
 

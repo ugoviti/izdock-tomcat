@@ -36,8 +36,8 @@ ENV APP_PLUGIN_AS400      1
 ENV APP_PLUGIN_REDISSON   0
 
 # generic app configuration variables
-ENV APP                   "Tomcat Web Application Server"
 ENV APP_NAME              "tomcat"
+ENV APP_DESCRIPTION       "Tomcat Web Application Server"
 ENV APP_HOME              "/usr/local/tomcat"
 ENV APP_CONF              ""
 ENV APP_DATA              ""
@@ -227,17 +227,13 @@ RUN set -xe \
 RUN set -xe \
   && umask $UMASK \
   && groupadd -g "${APP_GID}" "${APP_GRP}" \
-  && useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP" -g "${APP_GRP}" "${APP_USR}" \
+  && useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP_DESCRIPTION" -g "${APP_GRP}" "${APP_USR}" \
   && chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ \
   # custom tomcat path compatibility
   && ln -s "${APP_HOME}" /opt/tomcat
 
 # install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
-
-# add files to container
-ADD Dockerfile /
-ADD filesystem /
 
 # exposed ports
 EXPOSE 8080/tcp 8009/tcp
@@ -254,8 +250,16 @@ VOLUME ${APP_HOME}
 # turn on tomcat user
 #USER ${APP_USR}
 
-# entrypoint
-ENTRYPOINT ["tini", "--"]
-CMD ["/entrypoint.sh", "catalina.sh run"]
+# set default umask
+ENV UMASK           0002
 
-ENV APP_VER "8.5.37-103"
+# container pre-entrypoint variables
+ENV MULTISERVICE    "false"
+ENV ENTRYPOINT_TINI "true"
+
+# add files to container
+ADD Dockerfile filesystem VERSION README.md /
+
+# start the container process
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["catalina.sh run"]
