@@ -10,7 +10,7 @@ FROM ${image_from}
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # external libraries versions
-ARG MYSQL_CONNECTOR_J=8.0.13
+ARG MYSQL_CONNECTOR_J=8.0.14
 ARG AS400_CONNECTOR_J=9.6
 
 # default app versions

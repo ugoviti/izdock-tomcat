@@ -51,8 +51,8 @@ Ovverride Config Directory:
 
 ## generic app configuration variables
 ```
-ENV APP                   "Tomcat Web Application Server"
 ENV APP_NAME              "tomcat"
+ENV APP_DESCRIPTION       "Tomcat Web Application Server"
 ENV APP_HOME              "/opt/tomcat"
 ENV APP_CONF              ""
 ENV APP_DATA              ""
