@@ -1,4 +1,4 @@
-image_from="tomcat:8.5.37-jre8-slim"
+image_from="tomcat:8.5.39-jre8-slim"
 
 # use 5.1.47 instead 8.x to fix bug: https://forums.mysql.com/read.php?39,666677,666677
 MYSQL_CONNECTOR_J=5.1.47
@@ -6,7 +6,7 @@ args+=" MYSQL_CONNECTOR_J=${MYSQL_CONNECTOR_J}"
 
 tag_ver_major=8
 tag_ver_minor=5
-tag_ver_patch=37
+tag_ver_patch=39
 
 tag_latest=yes
 
