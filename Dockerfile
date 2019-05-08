@@ -100,6 +100,7 @@ RUN set -xe \
     imagemagick \
 	  ca-certificates \
     gnupg \
+    netcat \
 #  && gpg --keyserver gnupg.pub --recv-keys \
 #        05AB33110949707C93A279E3D3EFE6B686867BA6 \
 #        07E48665A34DCAFAE522E5E6266191C37C037D42 \
