@@ -1,4 +1,4 @@
-ARG image_from=tomcat:8.5.40-jre8-slim
+ARG image_from=tomcat:8.5.42-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -10,13 +10,16 @@ FROM ${image_from}
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # external libraries versions
-ARG MYSQL_CONNECTOR_J=8.0.15
+## https://dev.mysql.com/downloads/connector/j/
+ARG MYSQL_CONNECTOR_J=8.0.16
+
+## http://central.maven.org/maven2/net/sf/jt400/jt400/
 ARG AS400_CONNECTOR_J=9.8
 
 # default app versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=40
+ARG tag_ver_patch=42
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -192,8 +195,8 @@ RUN set -xe \
   && cd / \
   # disable ssl engine
   && sed -i 's/SSLEngine="on"/SSLEngine="off"/g' "${CATALINA_HOME}/conf/server.xml" \
-  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
-  && sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties \
+  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper (not working since tomcat:8.5.42-jdk8-openjdk-slim)
+  #&& sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties \
   # test: fix infinite dns cache jvm
   #&& echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security \
   # cleanup system

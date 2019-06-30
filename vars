@@ -1,4 +1,4 @@
-tag_ver_build=3
+tag_ver_build=9
 
 # set default php version to compile using external vars file
 [ -z "$tag_latest" ] && source $PWD/vars.85

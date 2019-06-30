@@ -1,10 +1,10 @@
-image_from="tomcat:7.0.92-jre7-slim"
+image_from="tomcat:7.0.94-jdk8-openjdk-slim"
 
 MYSQL_CONNECTOR_J=5.1.47
 
 tag_ver_major=7
 tag_ver_minor=0
-tag_ver_patch=92
+tag_ver_patch=94
 
 tag_latest=no
 
