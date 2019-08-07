@@ -1,10 +1,10 @@
-# use 5.1.47 instead 8.x to fix bug: https://forums.mysql.com/read.php?39,666677,666677
-MYSQL_CONNECTOR_J=5.1.47
+# use 5.1.x instead 8.x to fix bug: https://forums.mysql.com/read.php?39,666677,666677
+MYSQL_CONNECTOR_J=5.1.48
 
 # tomcat version
 tag_ver_major=8
 tag_ver_minor=5
-tag_ver_patch=42
+tag_ver_patch=43
 
 tag_latest=yes
 
