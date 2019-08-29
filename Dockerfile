@@ -1,4 +1,4 @@
-ARG image_from=tomcat:8.5.43-jdk8-openjdk-slim
+ARG image_from=tomcat:8.5.45-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -19,7 +19,7 @@ ARG AS400_CONNECTOR_J=9.8
 # default app versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=43
+ARG tag_ver_patch=45
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -30,7 +30,6 @@ ENV TOMCAT_VERSION        ${tag_ver}
 #ENV TOMCAT_NATIVE_VERSION 1.2.19
 
 # debian specific
-ENV TINI_VERSION          0.18.0
 ENV DEBIAN_FRONTEND       noninteractive
 
 # app plugins enabled
@@ -88,20 +87,21 @@ RUN set -xe \
   && apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     bash \
+    tini \
     procps \
     net-tools \
     iputils-ping \
-	  graphviz \
-	  fontconfig \
-	  fonts-dejavu \
-	  tar \
-	  bzip2 \
-	  zip \
-	  file \
-	  wget \
+    graphviz \
+    fontconfig \
+    fonts-dejavu \
+    tar \
+    bzip2 \
+    zip \
+    file \
+    wget \
     curl \
     imagemagick \
-	  ca-certificates \
+    ca-certificates \
     gnupg \
     netcat \
 #  && gpg --keyserver gnupg.pub --recv-keys \
@@ -119,10 +119,6 @@ RUN set -xe \
 #        F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE \
 #        F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23 \
   && update-ca-certificates \
-  # install tini as init container
-  && curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini_$TINI_VERSION-amd64.deb -o tini_$TINI_VERSION-amd64.deb \
-  && dpkg -i tini_$TINI_VERSION-amd64.deb \
-  && rm -f tini_$TINI_VERSION-amd64.deb \
 #  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz" \
 #  && wget -q --no-check-certificate "${APACHE_MIRROR}/tomcat/tomcat-${TOMCAT_VERSION_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
 #  && gpg --verify "apache-tomcat-${TOMCAT_VERSION}.tar.gz.asc" \
