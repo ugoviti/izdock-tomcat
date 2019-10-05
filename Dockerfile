@@ -1,4 +1,4 @@
-ARG image_from=tomcat:8.5.45-jdk8-openjdk-slim
+ARG image_from=tomcat:8.5.46-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -19,7 +19,7 @@ ARG AS400_CONNECTOR_J=9.8
 # default app versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=45
+ARG tag_ver_patch=46
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions

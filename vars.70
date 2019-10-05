@@ -1,13 +1,9 @@
-image_from="tomcat:7.0.94-jdk8-openjdk-slim"
-
-MYSQL_CONNECTOR_J=5.1.47
-
+# tomcat version
 tag_ver_major=7
 tag_ver_minor=0
-tag_ver_patch=94
+tag_ver_patch=96
 
 tag_latest=no
 
-args+=" MYSQL_CONNECTOR_J=${MYSQL_CONNECTOR_J}"
-
+image_from="tomcat:${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}-jdk8-openjdk-slim"
 source $PWD/vars

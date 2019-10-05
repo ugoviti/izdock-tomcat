@@ -1,13 +1,9 @@
-# use 5.1.x instead 8.x to fix bug: https://forums.mysql.com/read.php?39,666677,666677
-MYSQL_CONNECTOR_J=5.1.48
-
 # tomcat version
 tag_ver_major=8
 tag_ver_minor=5
-tag_ver_patch=45
+tag_ver_patch=46
 
 tag_latest=yes
 
 image_from="tomcat:${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}-jdk8-openjdk-slim"
-args+=" MYSQL_CONNECTOR_J=${MYSQL_CONNECTOR_J}"
 source $PWD/vars

@@ -1,4 +1,10 @@
-tag_ver_build=6
+tag_ver_build=1
 
-# set default php version to compile using external vars file
+# use 5.1.x instead 8.x to fix this bug: https://forums.mysql.com/read.php?39,666677,666677
+#MYSQL_CONNECTOR_J=8.0.17
+MYSQL_CONNECTOR_J=5.1.48
+
+args+=" MYSQL_CONNECTOR_J=${MYSQL_CONNECTOR_J}"
+
+# set default version to compile using external vars file
 [ -z "$tag_latest" ] && source $PWD/vars.85
