@@ -1,4 +1,4 @@
-ARG image_from=tomcat:8.5.46-jdk8-openjdk-slim
+ARG image_from=tomcat:8.5.49-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -11,15 +11,15 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # external libraries versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_CONNECTOR_J=8.0.17
+ARG MYSQL_CONNECTOR_J=8.0.18
 
 ## http://central.maven.org/maven2/net/sf/jt400/jt400/
-ARG AS400_CONNECTOR_J=9.8
+ARG AS400_CONNECTOR_J=10.1
 
 # default app versions
 ARG tag_ver_major=8
 ARG tag_ver_minor=5
-ARG tag_ver_patch=46
+ARG tag_ver_patch=49
 ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
 
 # components versions
@@ -68,9 +68,10 @@ ENV APP_WORK_DEFAULT      "${APP_HOME}/work"
 ENV APP_SHARED_DEFAULT    "${APP_HOME}/shared"
 
 # specific app configuration variables
-#ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
-#ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms512m -Xmx512m"
-ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
+ENV JAVA_OPTS     "-Djava.awt.headless=true -Dfile.encoding=UTF-8"
+#ENV CATALINA_OPTS "-XX:+UseG1GC -Dfile.encoding=UTF-8 -server -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
+#ENV CATALINA_OPTS "-XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
+ENV CATALINA_OPTS "-server"
 ENV CATALINA_HOME "${APP_HOME}"
 ENV PATH          "${PATH}:${CATALINA_HOME}/bin"
 ENV UMASK         "0002"

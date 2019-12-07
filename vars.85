@@ -1,7 +1,7 @@
 # tomcat version
 tag_ver_major=8
 tag_ver_minor=5
-tag_ver_patch=46
+tag_ver_patch=49
 
 tag_latest=yes
 
