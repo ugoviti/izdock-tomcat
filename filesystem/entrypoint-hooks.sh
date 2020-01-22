@@ -88,7 +88,7 @@ touch "${APP_CONF_DEFAULT}/.configured"
 
 hooks_onetime_data() {
 echo "=> Hooks ONETIME - DATA: Executing $APP data hooks 'onetime'..."
-cp -a ${APP_DATA_DEFAULT}-dist/* ${APP_DATA_DEFAULT}/
+cp -a ${APP_DATA_DEFAULT}.dist/* ${APP_DATA_DEFAULT}/
 }
 
 # always execute these hooks

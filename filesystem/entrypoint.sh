@@ -43,7 +43,7 @@ relink_dir() {
 		mv "$dir_default" "$dir_custom"
 	else
 		echo -e -n "=> directory $dir_custom already exist... "
-		mv "$dir_default" "$dir_default"-dist
+		mv "$dir_default" "$dir_default".dist
 	fi
 	echo "linking $dir_custom into $dir_default"
 	ln -s "$dir_custom" "$dir_default"
