@@ -2,9 +2,9 @@ kind: pipeline
 name: tomcat:8.5
 
 volumes:
-  - name: docker-host
+  - name: cache
     host:
-      path: /var/lib/docker
+      path: /tmp/drone/cache
 
 steps:
 - name: setup
@@ -19,6 +19,16 @@ steps:
   commands:
     - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
     - echo "latest,$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
+
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /var/lib/docker
+  settings:
+    restore: true
+    mount:
+    - /var/lib/docker
 
 - name: publish
   image: plugins/docker
@@ -38,9 +48,16 @@ steps:
     - APP_VER_MAJOR
     - APP_VER_MINOR
     - APP_VER_PATCH
-  volumes:
-  - name: docker-host
-    path: /var/lib/docker
   when:
     event: [push, tag]
     branch: master
+
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /var/lib/docker
+  settings:
+    rebuild: true
+    mount:
+    - /var/lib/docker
