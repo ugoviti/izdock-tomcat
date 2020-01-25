@@ -36,7 +36,7 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    cache_from: izdock/tomcat:latest
+    #cache_from: izdock/tomcat:latest
     storage_path: /drone/docker
     use_cache: true
     username:
@@ -61,4 +61,3 @@ steps:
     rebuild: true
     mount:
     - /drone/docker
-
