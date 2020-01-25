@@ -15,6 +15,14 @@ steps:
     - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
     - echo "latest,$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
 
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /drone/docker
+  settings:
+    restore: true
+
 - name: publish
   image: plugins/docker
   environment:
@@ -22,6 +30,7 @@ steps:
   settings:
     repo: izdock/tomcat
     cache_from: izdock/tomcat:latest
+    storage_path: /drone/docker
     use_cache: true
     username:
       from_secret: docker_username
@@ -36,41 +45,15 @@ steps:
     event: [push, tag]
     branch: master
 
----
-kind: pipeline
-name: tomcat:7.0
-
-steps:
-- name: setup
-  image: alpine
-  environment: &setup_env
-    APP_VER_MAJOR: 7
-    APP_VER_MINOR: 0
-    APP_VER_PATCH: 99
-    IMAGE_FROM: tomcat:7.0.94-jre7-slim
-    #MYSQL_CONNECTOR_J: 8.0.19
-    MYSQL_CONNECTOR_J: 5.1.48
-  commands:
-    - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo "latest,$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
-
-- name: publish
-  image: plugins/docker
-  environment:
-    <<: *setup_env
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /drone/docker
   settings:
-    repo: izdock/tomcat
-    cache_from: izdock/tomcat:latest
-    use_cache: true
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    build_args_from_env:
-    - IMAGE_FROM
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-  when:
-    event: [push, tag]
-    branch: master
+    rebuild: true
+
+volumes:
+  - name: cache
+    host: 
+      path: /tmp/cache
