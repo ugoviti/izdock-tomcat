@@ -27,6 +27,8 @@ steps:
     path: /drone/docker
   settings:
     restore: true
+    mount:
+    - /drone/docker
 
 - name: publish
   image: plugins/docker
@@ -57,4 +59,6 @@ steps:
     path: /drone/docker
   settings:
     rebuild: true
+    mount:
+    - /drone/docker
 
