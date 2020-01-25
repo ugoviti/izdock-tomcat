@@ -22,7 +22,6 @@ steps:
 
 - name: restore-cache
   image: drillster/drone-volume-cache
-  privileged: true
   volumes:
   - name: cache
     path: /drone/docker
@@ -53,7 +52,6 @@ steps:
 
 - name: rebuild-cache
   image: drillster/drone-volume-cache
-  privileged: true
   volumes:
   - name: cache
     path: /drone/docker
