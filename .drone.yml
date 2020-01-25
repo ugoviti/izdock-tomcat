@@ -1,0 +1,37 @@
+kind: pipeline
+name: default
+
+steps:
+- name: setup
+  image: alpine
+  environment: &setup_env
+    APP_VER_MAJOR: 8
+    APP_VER_MINOR: 5
+    APP_VER_PATCH: 50
+    IMAGE_FROM: tomcat:${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}-jdk8-openjdk-slim
+    #MYSQL_CONNECTOR_J: 8.0.19
+    MYSQL_CONNECTOR_J: 5.1.48
+  commands:
+    - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
+    - echo "latest,$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
+
+- name: publish
+  image: plugins/docker
+  environment:
+    <<: *setup_env
+  settings:
+    repo: izdock/tomcat
+    cache_from: izdock/tomcat:latest
+    use_cache: true
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    build_args_from_env:
+    - IMAGE_FROM
+    - APP_VER_MAJOR
+    - APP_VER_MINOR
+    - APP_VER_PATCH
+  when:
+    event: [push, tag]
+    branch: master
