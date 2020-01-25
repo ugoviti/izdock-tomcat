@@ -4,7 +4,7 @@ name: tomcat:8.5
 volumes:
   - name: cache
     host:
-      path: /tmp/drone-cache
+      path: /tmp/drone/cache
 
 steps:
 - name: setup
