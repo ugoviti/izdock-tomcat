@@ -1,6 +1,11 @@
 kind: pipeline
 name: tomcat:8.5
 
+volumes:
+  - name: cache
+    host: 
+      path: /tmp/drone-cache
+
 steps:
 - name: setup
   image: alpine
@@ -17,6 +22,7 @@ steps:
 
 - name: restore-cache
   image: drillster/drone-volume-cache
+  privileged: true
   volumes:
   - name: cache
     path: /drone/docker
@@ -47,13 +53,10 @@ steps:
 
 - name: rebuild-cache
   image: drillster/drone-volume-cache
+  privileged: true
   volumes:
   - name: cache
     path: /drone/docker
   settings:
     rebuild: true
 
-volumes:
-  - name: cache
-    host: 
-      path: /tmp/cache
