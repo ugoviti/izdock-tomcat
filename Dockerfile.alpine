@@ -8,16 +8,16 @@ FROM alpine:3.8
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # default versions
-ARG tag_ver_major=8
-ARG tag_ver_minor=5
-ARG tag_ver_patch=34
-ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
+ARG APP_VER_MAJOR=8
+ARG APP_VER_MINOR=5
+ARG APP_VER_PATCH=34
+ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 
 # components versions
-ENV TOMCAT_VERSION_MAJOR  ${tag_ver_major}
-ENV TOMCAT_VERSION_MINOR  ${tag_ver_minor}
-ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
-ENV TOMCAT_VERSION        ${tag_ver}
+ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
+ENV TOMCAT_VERSION_MINOR  ${APP_VER_MINOR}
+ENV TOMCAT_VERSION_PATCH  ${APP_VER_PATCH}
+ENV TOMCAT_VERSION        ${APP_VER}
 #ENV TOMCAT_NATIVE_VERSION 1.2.17
 
 ENV MYSQL_CONNECTOR_J     8.0.13

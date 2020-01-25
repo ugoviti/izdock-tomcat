@@ -8,7 +8,7 @@ steps:
     APP_VER_MAJOR: 8
     APP_VER_MINOR: 5
     APP_VER_PATCH: 50
-    IMAGE_FROM: tomcat:${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}-jdk8-openjdk-slim
+    IMAGE_FROM: tomcat:8.5.50-jdk8-openjdk-slim
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.48
   commands:

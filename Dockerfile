@@ -1,32 +1,32 @@
-ARG image_from=tomcat:8.5.50-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.50-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
 #ENV GOPATH /go
 #RUN go get -u github.com/googlecloudplatform/gcsfuse
 
-FROM ${image_from}
+FROM ${IMAGE_FROM}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # external libraries versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_CONNECTOR_J=8.0.18
+ARG MYSQL_CONNECTOR_J=8.0.19
 
 ## http://central.maven.org/maven2/net/sf/jt400/jt400/
 ARG AS400_CONNECTOR_J=10.2
 
 # default app versions
-ARG tag_ver_major=8
-ARG tag_ver_minor=5
-ARG tag_ver_patch=50
-ARG tag_ver=${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}
+ARG APP_VER_MAJOR=8
+ARG APP_VER_MINOR=5
+ARG APP_VER_PATCH=50
+ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 
 # components versions
-ENV TOMCAT_VERSION_MAJOR  ${tag_ver_major}
-ENV TOMCAT_VERSION_MINOR  ${tag_ver_minor}
-ENV TOMCAT_VERSION_PATCH  ${tag_ver_patch}
-ENV TOMCAT_VERSION        ${tag_ver}
+ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
+ENV TOMCAT_VERSION_MINOR  ${APP_VER_MINOR}
+ENV TOMCAT_VERSION_PATCH  ${APP_VER_PATCH}
+ENV TOMCAT_VERSION        ${APP_VER}
 #ENV TOMCAT_NATIVE_VERSION 1.2.19
 
 # debian specific
@@ -136,7 +136,7 @@ RUN set -xe \
      fi \
   # as400 java connector
   && if [ $APP_PLUGIN_AS400 = 1 ]; then \
-     curl -fSL --connect-timeout 10 "http://central.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" ; \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" ; \
      fi \
   # redis session manager
   && if [ $APP_PLUGIN_REDISSON = 1 ]; then \

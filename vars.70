@@ -1,9 +1,9 @@
 # tomcat version
-tag_ver_major=7
-tag_ver_minor=0
-tag_ver_patch=96
+APP_VER_MAJOR=7
+APP_VER_MINOR=0
+APP_VER_PATCH=96
 
 tag_latest=no
 
-image_from="tomcat:${tag_ver_major}.${tag_ver_minor}.${tag_ver_patch}-jdk8-openjdk-slim"
+IMAGE_FROM="tomcat:${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}-jdk8-openjdk-slim"
 source $PWD/vars
