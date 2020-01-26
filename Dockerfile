@@ -88,7 +88,6 @@ RUN set -xe \
   && apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     bash \
-    tini \
     procps \
     net-tools \
     iputils-ping \
@@ -105,6 +104,15 @@ RUN set -xe \
     ca-certificates \
     gnupg \
     netcat \
+  # install tini as init container
+  && if [ $TOMCAT_VERSION \> 8.0.0 ]; then \
+      apt-get install -y --no-install-recommends tini; \
+    else \
+      curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini_$TINI_VERSION-amd64.deb -o tini_$TINI_VERSION-amd64.deb; \
+      dpkg -i tini_$TINI_VERSION-amd64.deb; \
+      rm -f tini_$TINI_VERSION-amd64.deb; \
+   fi \
+  \
 #  && gpg --keyserver gnupg.pub --recv-keys \
 #        05AB33110949707C93A279E3D3EFE6B686867BA6 \
 #        07E48665A34DCAFAE522E5E6266191C37C037D42 \
