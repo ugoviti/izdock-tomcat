@@ -26,8 +26,52 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-#    cache_from: izdock/tomcat:latest
-#    create_repository: true
+    use_cache: true
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    build_args_from_env:
+    - IMAGE_FROM
+    - APP_VER_MAJOR
+    - APP_VER_MINOR
+    - APP_VER_PATCH
+  volumes:
+  - name: docker
+    path: /var/lib/docker
+  when:
+    event: [push, tag]
+    branch: master
+
+---
+kind: pipeline
+name: tomcat:7.0
+
+volumes:
+  - name: docker
+    host:
+      path: /var/cache/${DRONE_REPO}/docker
+
+steps:
+- name: setup
+  image: alpine
+  environment: &setup_env
+    IMAGE_FROM: tomcat:7.0.94-jre7-slim
+    APP_VER_MAJOR: 7
+    APP_VER_MINOR: 0
+    APP_VER_PATCH: 99
+    #MYSQL_CONNECTOR_J: 8.0.19
+    MYSQL_CONNECTOR_J: 5.1.48
+  commands:
+    - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
+    - echo "$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
+
+- name: publish
+  image: plugins/docker
+  environment:
+    <<: *setup_env
+  settings:
+    repo: izdock/tomcat
     use_cache: true
     username:
       from_secret: docker_username
