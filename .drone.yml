@@ -24,7 +24,7 @@ steps:
   image: drillster/drone-volume-cache
   volumes:
   - name: cache
-    path: /var/lib/docker
+    path: /cache
   settings:
     restore: true
     mount:
@@ -36,8 +36,8 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    #cache_from: izdock/tomcat:latest
-    #storage_path: /drone/docker
+    cache_from: izdock/tomcat:latest
+    #storage_path: /var/lib/docker
     #use_cache: true
     username:
       from_secret: docker_username
@@ -56,7 +56,7 @@ steps:
   image: drillster/drone-volume-cache
   volumes:
   - name: cache
-    path: /var/lib/docker
+    path: /cache
   settings:
     rebuild: true
     mount:
