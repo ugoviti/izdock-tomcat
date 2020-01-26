@@ -30,7 +30,7 @@ steps:
     mount:
     - /var/lib/docker
 
-- name: publish
+- name: publish-docker-hub
   image: plugins/docker
   environment:
     <<: *setup_env
