@@ -26,7 +26,7 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    cache_from: izdock/tomcat:latest
+#    cache_from: izdock/tomcat:latest
 #    create_repository: true
     use_cache: true
     username:
