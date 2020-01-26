@@ -59,7 +59,7 @@ steps:
     IMAGE_FROM: tomcat:7.0.94-jre7-slim
     APP_VER_MAJOR: 7
     APP_VER_MINOR: 0
-    APP_VER_PATCH: 99
+    APP_VER_PATCH: 94
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.48
   commands:
