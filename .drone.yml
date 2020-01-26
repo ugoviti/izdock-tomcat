@@ -1,5 +1,5 @@
 kind: pipeline
-name: tomcat:8.5
+name: tomcat8
 
 volumes:
   - name: docker
@@ -45,7 +45,7 @@ steps:
 
 ---
 kind: pipeline
-name: tomcat:7.0
+name: tomcat7
 
 volumes:
   - name: docker
