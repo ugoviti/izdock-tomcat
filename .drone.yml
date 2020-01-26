@@ -17,16 +17,19 @@ steps:
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.48
   commands:
-    - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo "latest,$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
+    - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
+    - echo -e -n "$${APP_VER_MAJOR}" > .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}" >> .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}" >> .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n ",latest" >> .tags
 
-- name: publish-docker-hub
+- name: publish
   image: plugins/docker
   environment:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    use_cache: true
     username:
       from_secret: docker_username
     password:
@@ -63,8 +66,12 @@ steps:
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.48
   commands:
-    - echo "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo "$${APP_VER_MAJOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH},$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > .tags
+    - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
+    - echo -e -n "$${APP_VER_MAJOR}" > .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}" >> .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}" >> .tags
+    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" >> .tags
+    #- echo -e -n ",latest" >> .tags
 
 - name: publish
   image: plugins/docker
@@ -72,7 +79,6 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    use_cache: true
     username:
       from_secret: docker_username
     password:
