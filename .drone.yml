@@ -30,15 +30,15 @@ steps:
     <<: *setup_env
   settings:
     repo: izdock/tomcat
-    username:
-      from_secret: DOCKER_USERNAME
-    password:
-      from_secret: DOCKER_PASSWORD
     build_args_from_env:
     - IMAGE_FROM
     - APP_VER_MAJOR
     - APP_VER_MINOR
     - APP_VER_PATCH
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
   volumes:
   - name: docker
     path: /var/lib/docker
