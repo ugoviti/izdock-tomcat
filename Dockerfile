@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.50-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.51-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,13 +13,13 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 ## https://dev.mysql.com/downloads/connector/j/
 ARG MYSQL_CONNECTOR_J=8.0.19
 
-## http://central.maven.org/maven2/net/sf/jt400/jt400/
+## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_CONNECTOR_J=10.2
 
 # default app versions
 ARG APP_VER_MAJOR=8
 ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=50
+ARG APP_VER_PATCH=51
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 
 # components versions

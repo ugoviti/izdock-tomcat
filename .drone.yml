@@ -10,10 +10,10 @@ steps:
 - name: setup
   image: alpine
   environment: &setup_env
-    IMAGE_FROM: tomcat:8.5.50-jdk8-openjdk-slim
+    IMAGE_FROM: tomcat:8.5.51-jdk8-openjdk-slim
     APP_VER_MAJOR: 8
     APP_VER_MINOR: 5
-    APP_VER_PATCH: 50
+    APP_VER_PATCH: 51
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.48
   commands:
