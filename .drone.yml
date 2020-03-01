@@ -61,7 +61,7 @@ steps:
   environment: &setup_env
     IMAGE_FROM: tomcat:9.0.31-jdk8-openjdk-slim
     APP_VER_MAJOR: 9
-    APP_VER_MINOR: 5
+    APP_VER_MINOR: 0
     APP_VER_PATCH: 31
     MYSQL_CONNECTOR_J: 8.0.19
   commands:
