@@ -35,6 +35,7 @@ steps:
     - APP_VER_MAJOR
     - APP_VER_MINOR
     - APP_VER_PATCH
+    - MYSQL_CONNECTOR_J
     username:
       from_secret: DOCKER_USERNAME
     password:
@@ -63,7 +64,8 @@ steps:
     APP_VER_MAJOR: 9
     APP_VER_MINOR: 0
     APP_VER_PATCH: 31
-    MYSQL_CONNECTOR_J: 8.0.19
+    #MYSQL_CONNECTOR_J: 8.0.19
+    MYSQL_CONNECTOR_J: 5.1.48
   commands:
     - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
     - echo -e -n "$${APP_VER_MAJOR}" > .tags
@@ -83,6 +85,7 @@ steps:
     - APP_VER_MAJOR
     - APP_VER_MINOR
     - APP_VER_PATCH
+    - MYSQL_CONNECTOR_J
     username:
       from_secret: DOCKER_USERNAME
     password:
@@ -136,6 +139,7 @@ steps:
     - APP_VER_MAJOR
     - APP_VER_MINOR
     - APP_VER_PATCH
+    - MYSQL_CONNECTOR_J
   volumes:
   - name: docker
     path: /var/lib/docker
