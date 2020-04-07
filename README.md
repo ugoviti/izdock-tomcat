@@ -8,7 +8,7 @@ Production ready Apache Tomcat Java Servlet Application Server
 Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
 
 # Dockerfile
-- https://github.com/ugoviti/izdock/blob/master/tomcat/Dockerfile
+- https://github.com/ugoviti/izdock-tomcat/blob/master/tomcat/Dockerfile
 
 # Features
 - Small image footprint (based on [Linux Debian](/_/debian/) image)
@@ -16,7 +16,7 @@ Where **X** is the patch version number, and **BUILD** is the build number (look
 - APR Native Libraries compiled
 - Many customizable variables to use
 - Included MySQL Connector 8.x
-- Included AS400 Connector 9.x
+- Included AS400 Connector 10.x
 - GCSFuse support to mount Google Cloud Bucket share
 - Using [tini](https://github.com/krallin/tini) as init process
 
