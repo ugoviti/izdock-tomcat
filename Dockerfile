@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.51-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.53-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
