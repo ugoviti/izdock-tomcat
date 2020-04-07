@@ -8,7 +8,7 @@ Production ready Apache Tomcat Java Servlet Application Server
 Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
 
 # Dockerfile
-- https://github.com/ugoviti/izdock-tomcat/blob/master/tomcat/Dockerfile
+- https://github.com/ugoviti/izdock-tomcat/blob/master/Dockerfile
 
 # Features
 - Small image footprint (based on [Linux Debian](/_/debian/) image)
