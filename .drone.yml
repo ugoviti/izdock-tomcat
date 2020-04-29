@@ -10,12 +10,12 @@ steps:
 - name: setup
   image: alpine
   environment: &setup_env
-    IMAGE_FROM: tomcat:8.5.53-jdk8-openjdk-slim
+    IMAGE_FROM: tomcat:8.5.54-jdk8-openjdk-slim
     APP_VER_MAJOR: 8
     APP_VER_MINOR: 5
-    APP_VER_PATCH: 53
+    APP_VER_PATCH: 54
     #MYSQL_CONNECTOR_J: 8.0.19
-    MYSQL_CONNECTOR_J: 5.1.48
+    MYSQL_CONNECTOR_J: 5.1.49
   commands:
     - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
     - echo -e -n "$${APP_VER_MAJOR}" > .tags
