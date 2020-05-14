@@ -21,6 +21,7 @@ steps:
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.49
   commands:
+    - export APP_VER
     - echo -e -n "$${APP_VER}-$${DRONE_BUILD_NUMBER}" >> .tags
     - echo -e -n ",$${APP_VER}" >> .tags
     - echo -e -n ",$${APP_VER%.*}" >> .tags
