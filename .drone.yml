@@ -26,10 +26,10 @@ steps:
 - name: setup
   image: alpine
   commands:
-    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" > .tags
     - echo -e -n ",$${APP_VER}" >> .tags
     - echo -e -n ",$${APP_VER%.*}" >> .tags
-    - echo -e -n ",$${APP_VER%%.*}" > .tags
+    - echo -e -n ",$${APP_VER%%.*}" >> .tags
     - echo -e -n ",latest" >> .tags
 
 - name: publish
