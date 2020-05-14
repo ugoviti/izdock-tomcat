@@ -138,7 +138,7 @@ RUN set -xe && \
   # glowroot monitoring
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
-     unzip -j "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" -d "${CATALINA_HOME}/" && \
+     unzip "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" -d "${CATALINA_HOME}/" && \
      echo "{ "web": { "bindAddress": "0.0.0.0" } }" > "${CATALINA_HOME}/glowroot/admin.json" && \
      rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" \
      ;fi && \
