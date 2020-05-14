@@ -1,4 +1,12 @@
-ARG IMAGE_FROM=tomcat:8.5.55-jdk8-openjdk-slim
+# default app args used during build step
+ARG APP_VER_MAJOR=8
+ARG APP_VER_MINOR=5
+ARG APP_VER_PATCH=55
+
+# full app version
+ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+
+ARG IMAGE_FROM=tomcat:${APP_VER}-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -9,13 +17,7 @@ FROM ${IMAGE_FROM}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
-# default app args used during build step
-ARG APP_VER_MAJOR=8
-ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=55
-
-# full app version
-ENV APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
@@ -87,10 +89,12 @@ ENV UMASK         "0002"
 WORKDIR ${CATALINA_HOME}
 
 ## install
-# tomcat (thanks https://hub.docker.com/r/andreptb/tomcat/)
-# other useful urls:
-# https://github.com/Unidata/tomcat-docker
-ENV APACHE_MIRROR         "https://archive.apache.org/dist"
+
+RUN echo "Building $APP_DESCRIPTION" && \
+  echo "TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}" && \
+  echo "TOMCAT_VERSION_MINOR  ${APP_VER_MINOR}" && \
+  echo "TOMCAT_VERSION_PATCH  ${APP_VER_PATCH}" && \
+  echo "TOMCAT_VERSION        ${APP_VER}"
 
 RUN set -xe && \
   apt-get update && apt-get upgrade -y && \
