@@ -22,7 +22,7 @@ steps:
 - name: setup
   image: alpine
   commands:
-    - echo -e -n "$${APP_VER}-$${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" >> .tags
     - echo -e -n ",$${APP_VER}" >> .tags
     - echo -e -n ",$${APP_VER%.*}" >> .tags
     - echo -e -n ",$${APP_VER%%.*}" > .tags
@@ -31,11 +31,11 @@ steps:
 - name: publish
   image: plugins/docker
   environment:
-    IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
-    APP_VER_MAJOR: "${APP_VER/.*/}"
-    APP_VER_MINOR: "${APP_VER%.*}"
-    APP_VER_MINOR: "${APP_VER_MINOR#*.}"
-    APP_VER_PATCH: "${APP_VER/*./}"
+    IMAGE_FROM: "tomcat:$${APP_VER}-jdk8-openjdk-slim"
+    APP_VER_MAJOR: "$${APP_VER/.*/}"
+    APP_VER_MINOR: "$${APP_VER%.*}"
+    APP_VER_MINOR: "$${APP_VER_MINOR#*.}"
+    APP_VER_PATCH: "$${APP_VER/*./}"
   settings:
     repo: izdock/tomcat
     build_args_from_env:
