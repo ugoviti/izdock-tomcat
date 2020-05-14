@@ -14,7 +14,7 @@ volumes:
       path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
 
 environment:
-  APP_VER: 8.5.55
+  APP_VER: 8.5.54
   #MYSQL_CONNECTOR_J: 8.0.19
   MYSQL_CONNECTOR_J: 5.1.49
 
