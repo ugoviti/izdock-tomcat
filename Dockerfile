@@ -94,7 +94,7 @@ ENV APACHE_MIRROR         "https://archive.apache.org/dist"
 
 RUN set -xe && \
   apt-get update && apt-get upgrade -y && \
-  apt-get install -y --no-install-recommends && \
+  apt-get install -y --no-install-recommends \
     bash \
     procps \
     net-tools \
@@ -162,15 +162,15 @@ RUN set -xe && \
 
 # verify Tomcat Native is working properly
 RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
-        set -e \
-        && nativeLines="$(catalina.sh configtest 2>&1)" \
-        && nativeLines="$(echo "$nativeLines" | grep 'Apache Tomcat Native')" \
-        && nativeLines="$(echo "$nativeLines" | sort -u)" \
-        && if ! echo "$nativeLines" | grep 'INFO: Loaded APR based Apache Tomcat Native library' >&2; then \
-                echo >&2 "$nativeLines"; \
-                exit 1; \
-        fi \
-    fi
+        set -e && \
+        nativeLines="$(catalina.sh configtest 2>&1)" && \
+        nativeLines="$(echo "$nativeLines" | grep 'Apache Tomcat Native')" && \
+        nativeLines="$(echo "$nativeLines" | sort -u)" && \
+        if ! echo "$nativeLines" | grep 'INFO: Loaded Apache Tomcat Native library' >&2; then \
+                echo >&2 "$nativeLines" && \
+                exit 1 \
+        ;fi \
+    ;fi
 
 # remove unnecessary default components
 RUN set -xe && \
@@ -218,7 +218,7 @@ ENV MULTISERVICE    "false"
 ENV ENTRYPOINT_TINI "true"
 
 # add files to container
-ADD Dockerfile filesystem VERSION README.md /
+ADD Dockerfile filesystem README.md /
 
 # start the container process
 ENTRYPOINT ["/entrypoint.sh"]
