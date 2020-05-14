@@ -139,7 +139,7 @@ RUN set -xe && \
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
      unzip "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" -d "${CATALINA_HOME}/" && \
-     echo "{ "web": { "bindAddress": "0.0.0.0" } }" > "${CATALINA_HOME}/glowroot/admin.json" && \
+     echo '{ "web": { "bindAddress": "0.0.0.0" } }' > "${CATALINA_HOME}/glowroot/admin.json" && \
      rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" \
      ;fi && \
   # redis session manager

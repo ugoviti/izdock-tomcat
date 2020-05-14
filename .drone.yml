@@ -14,8 +14,8 @@ volumes:
       path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
 
 environment:
-  APP_VER: 8.5.55
   IMAGE_FROM: "tomcat:8.5.55-jdk8-openjdk-slim"
+  APP_VER: 8.5.55
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
   APP_VER_PATCH: 55
@@ -35,7 +35,7 @@ steps:
 - name: publish
   image: plugins/docker
   environment:
-    # test
+    # FIXME: test variables expansion doesn't works
     #IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
     #APP_VER_MAJOR: "${APP_VER/.*/}"
     #APP_VER_MINOR: "${APP_VER%.*}"
