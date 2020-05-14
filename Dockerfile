@@ -220,6 +220,17 @@ ENV ENTRYPOINT_TINI "true"
 # add files to container
 ADD Dockerfile filesystem README.md /
 
+# CI args
+ARG APP_VER_BUILD
+ARG APP_BUILD_COMMIT
+ARG APP_BUILD_DATE
+
+# define other build variables
+ENV APP_FQDN=""
+ENV APP_VER_BUILD="${APP_VER_BUILD}"
+ENV APP_BUILD_COMMIT="${APP_BUILD_COMMIT}"
+ENV APP_BUILD_DATE="${APP_BUILD_DATE}"
+
 # start the container process
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["catalina.sh run"]

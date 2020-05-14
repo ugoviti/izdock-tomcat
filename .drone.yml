@@ -14,7 +14,11 @@ volumes:
       path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
 
 environment:
-  APP_VER: 8.5.54
+  APP_VER: 8.5.55
+  IMAGE_FROM: "tomcat:8.5.55-jdk8-openjdk-slim"
+  APP_VER_MAJOR: 8
+  APP_VER_MINOR: 5
+  APP_VER_PATCH: 55
   #MYSQL_CONNECTOR_J: 8.0.19
   MYSQL_CONNECTOR_J: 5.1.49
 
@@ -22,20 +26,24 @@ steps:
 - name: setup
   image: alpine
   commands:
-    - echo -e -n "${APP_VER}-${DRONE_BUILD_NUMBER}" >> .tags
-    - echo -e -n ",${APP_VER}" >> .tags
-    - echo -e -n ",${APP_VER%.*}" >> .tags
-    - echo -e -n ",${APP_VER%%.*}" > .tags
+    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n ",$${APP_VER}" >> .tags
+    - echo -e -n ",$${APP_VER%.*}" >> .tags
+    - echo -e -n ",$${APP_VER%%.*}" > .tags
     - echo -e -n ",latest" >> .tags
 
 - name: publish
   image: plugins/docker
   environment:
-    IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
-    APP_VER_MAJOR: "${APP_VER/.*/}"
-    APP_VER_MINOR: "${APP_VER%.*}"
-    APP_VER_MINOR: "${APP_VER_MINOR#*.}"
-    APP_VER_PATCH: "${APP_VER/*./}"
+    # test
+    #IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
+    #APP_VER_MAJOR: "${APP_VER/.*/}"
+    #APP_VER_MINOR: "${APP_VER%.*}"
+    #APP_VER_MINOR: "${APP_VER_MINOR#*.}"
+    #APP_VER_PATCH: "${APP_VER/*./}"
+    APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
+    APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
+    APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
   settings:
     repo: izdock/tomcat
     build_args_from_env:
@@ -46,6 +54,9 @@ steps:
     - APP_VER_MINOR
     - APP_VER_PATCH
     - MYSQL_CONNECTOR_J
+    - APP_VER_BUILD
+    - APP_BUILD_COMMIT
+    - APP_BUILD_DATE
     username:
       from_secret: DOCKER_USERNAME
     password:
