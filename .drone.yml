@@ -32,7 +32,7 @@ steps:
   image: plugins/docker
   environment:
     <<: *setup_env
-    IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
+    IMAGE_FROM: "tomcat:${DRONE_BUILD_NUMBER}-jdk8-openjdk-slim"
     APP_VER_MAJOR: "${APP_VER/.*/}"
     APP_VER_MINOR: "${APP_VER%.*}"
     APP_VER_MINOR: "${APP_VER_MINOR#*.}"
