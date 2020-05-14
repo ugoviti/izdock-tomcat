@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.54-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.55-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -9,18 +9,23 @@ FROM ${IMAGE_FROM}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
-# external libraries versions
+# default app args used during build step
+ARG APP_VER_MAJOR=8
+ARG APP_VER_MINOR=5
+ARG APP_VER_PATCH=55
+
+# full app version
+ENV APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+
+# components app versions
 ## https://dev.mysql.com/downloads/connector/j/
 ARG MYSQL_CONNECTOR_J=8.0.20
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_CONNECTOR_J=10.3
 
-# default app versions
-ARG APP_VER_MAJOR=8
-ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=54
-ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+## https://github.com/glowroot/glowroot/releases
+ARG GLOWROOT_VERSION=0.13.6
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
@@ -37,6 +42,7 @@ ENV DEBIAN_FRONTEND       noninteractive
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
 ENV APP_PLUGIN_AS400      1
+ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_REDISSON   0
 
 # generic app configuration variables
@@ -99,6 +105,7 @@ RUN set -xe \
     tar \
     bzip2 \
     zip \
+    unzip \
     file \
     wget \
     curl \
@@ -147,6 +154,12 @@ RUN set -xe \
   # as400 java connector
   && if [ $APP_PLUGIN_AS400 = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" ; \
+     fi \
+  # glowroot monitoring
+  && if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
+     unzip -j "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" "*/glowroot.jar" -d "${CATALINA_HOME}/lib/" && \
+     rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip"; \
      fi \
   # redis session manager
   && if [ $APP_PLUGIN_REDISSON = 1 ]; then \

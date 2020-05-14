@@ -1,6 +1,13 @@
 kind: pipeline
 name: tomcat8
 
+platform:
+  os: linux
+  arch: amd64
+
+concurrency:
+  limit: 1
+
 volumes:
   - name: docker
     host:
@@ -10,18 +17,15 @@ steps:
 - name: setup
   image: alpine
   environment: &setup_env
-    IMAGE_FROM: tomcat:8.5.54-jdk8-openjdk-slim
-    APP_VER_MAJOR: 8
-    APP_VER_MINOR: 5
-    APP_VER_PATCH: 54
+    APP_VER: 8.5.55
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.49
   commands:
-    - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo -e -n "$${APP_VER_MAJOR}" > .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n "$${APP_VER}-$${DRONE_BUILD_NUMBER}" >> VERSION
+    - echo -e -n "$${APP_VER}-$${DRONE_BUILD_NUMBER}" >> .tags
+    - echo -e -n ",$${APP_VER}" >> .tags
+    - echo -e -n ",$${APP_VER%.*}" >> .tags
+    - echo -e -n ",$${APP_VER%%.*}" > .tags
     - echo -e -n ",latest" >> .tags
 
 - name: publish
@@ -31,115 +35,17 @@ steps:
   settings:
     repo: izdock/tomcat
     build_args_from_env:
-    - IMAGE_FROM
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
+    - IMAGE_FROM=tomcat:${APP_VER}-jdk8-openjdk-slim
+    - APP_VER
+    - APP_VER_MAJOR=${APP_VER/.*/}
+    - APP_VER_MINOR=${APP_VER%.*}
+    - APP_VER_MINOR=${APP_VER_MINOR#*.}
+    - APP_VER_PATCH=${APP_VER/*./}
     - MYSQL_CONNECTOR_J
     username:
       from_secret: DOCKER_USERNAME
     password:
       from_secret: DOCKER_PASSWORD
-  volumes:
-  - name: docker
-    path: /var/lib/docker
-  when:
-    event: [push, tag]
-    branch: master
-
----
-kind: pipeline
-name: tomcat9
-
-volumes:
-  - name: docker
-    host:
-      path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
-
-steps:
-- name: setup
-  image: alpine
-  environment: &setup_env
-    IMAGE_FROM: tomcat:9.0.33-jdk11-openjdk-slim
-    APP_VER_MAJOR: 9
-    APP_VER_MINOR: 0
-    APP_VER_PATCH: 33
-    #MYSQL_CONNECTOR_J: 8.0.19
-    MYSQL_CONNECTOR_J: 5.1.48
-  commands:
-    - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo -e -n "$${APP_VER_MAJOR}" > .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" >> .tags
-    #- echo -e -n ",latest" >> .tags
-
-- name: publish
-  image: plugins/docker
-  environment:
-    <<: *setup_env
-  settings:
-    repo: izdock/tomcat
-    build_args_from_env:
-    - IMAGE_FROM
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_CONNECTOR_J
-    username:
-      from_secret: DOCKER_USERNAME
-    password:
-      from_secret: DOCKER_PASSWORD
-  volumes:
-  - name: docker
-    path: /var/lib/docker
-  when:
-    event: [push, tag]
-    branch: master
-
----
-kind: pipeline
-name: tomcat7
-
-volumes:
-  - name: docker
-    host:
-      path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
-
-steps:
-- name: setup
-  image: alpine
-  environment: &setup_env
-    IMAGE_FROM: tomcat:7.0.94-jre7-slim
-    APP_VER_MAJOR: 7
-    APP_VER_MINOR: 0
-    APP_VER_PATCH: 94
-    #MYSQL_CONNECTOR_J: 8.0.19
-    MYSQL_CONNECTOR_J: 5.1.48
-  commands:
-    - echo -e -n "$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" > VERSION
-    - echo -e -n "$${APP_VER_MAJOR}" > .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}" >> .tags
-    - echo -e -n ",$${APP_VER_MAJOR}.$${APP_VER_MINOR}.$${APP_VER_PATCH}-$${DRONE_BUILD_NUMBER}" >> .tags
-    #- echo -e -n ",latest" >> .tags
-
-- name: publish
-  image: plugins/docker
-  environment:
-    <<: *setup_env
-  settings:
-    repo: izdock/tomcat
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    build_args_from_env:
-    - IMAGE_FROM
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_CONNECTOR_J
   volumes:
   - name: docker
     path: /var/lib/docker
