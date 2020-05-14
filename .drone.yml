@@ -13,15 +13,15 @@ volumes:
     host:
       path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
 
+environment:
+  APP_VER: 8.5.55
+  #MYSQL_CONNECTOR_J: 8.0.19
+  MYSQL_CONNECTOR_J: 5.1.49
+
 steps:
 - name: setup
   image: alpine
-  environment: &setup_env
-    APP_VER: 8.5.55
-    #MYSQL_CONNECTOR_J: 8.0.19
-    MYSQL_CONNECTOR_J: 5.1.49
   commands:
-    - export APP_VER=$${APP_VER}
     - echo -e -n "$${APP_VER}-$${DRONE_BUILD_NUMBER}" >> .tags
     - echo -e -n ",$${APP_VER}" >> .tags
     - echo -e -n ",$${APP_VER%.*}" >> .tags
@@ -31,8 +31,7 @@ steps:
 - name: publish
   image: plugins/docker
   environment:
-    <<: *setup_env
-    IMAGE_FROM: "tomcat:${DRONE_BUILD_NUMBER}-jdk8-openjdk-slim"
+    IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
     APP_VER_MAJOR: "${APP_VER/.*/}"
     APP_VER_MINOR: "${APP_VER%.*}"
     APP_VER_MINOR: "${APP_VER_MINOR#*.}"
