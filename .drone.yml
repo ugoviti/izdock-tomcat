@@ -18,11 +18,6 @@ steps:
   image: alpine
   environment: &setup_env
     APP_VER: 8.5.55
-    APP_VER_MAJOR: "${APP_VER/.*/}"
-    APP_VER_MINOR: "${APP_VER%.*}"
-    APP_VER_MINOR: "${APP_VER_MINOR#*.}"
-    APP_VER_PATCH: "${APP_VER/*./}"
-    IMAGE_FROM: "tomcat:$${APP_VER}-jdk8-openjdk-slim"
     #MYSQL_CONNECTOR_J: 8.0.19
     MYSQL_CONNECTOR_J: 5.1.49
   commands:
@@ -31,12 +26,16 @@ steps:
     - echo -e -n ",$${APP_VER%.*}" >> .tags
     - echo -e -n ",$${APP_VER%%.*}" > .tags
     - echo -e -n ",latest" >> .tags
-    - cat .tags
 
 - name: publish
   image: plugins/docker
   environment:
     <<: *setup_env
+    IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
+    APP_VER_MAJOR: "${APP_VER/.*/}"
+    APP_VER_MINOR: "${APP_VER%.*}"
+    APP_VER_MINOR: "${APP_VER_MINOR#*.}"
+    APP_VER_PATCH: "${APP_VER/*./}"
   settings:
     repo: izdock/tomcat
     build_args_from_env:
