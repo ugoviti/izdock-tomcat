@@ -19,8 +19,8 @@ environment:
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
   APP_VER_PATCH: 55
-  #MYSQL_CONNECTOR_J: 8.0.19
   MYSQL_CONNECTOR_J: 5.1.49
+  #MYSQL_CONNECTOR_J: 8.0.20
 
 steps:
 - name: setup
