@@ -5,8 +5,8 @@ platform:
   os: linux
   arch: amd64
 
-concurrency:
-  limit: 1
+#concurrency:
+#  limit: 1
 
 volumes:
   - name: docker
