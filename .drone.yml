@@ -14,11 +14,11 @@ volumes:
       path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
 
 environment:
-  IMAGE_FROM: "tomcat:8.5.55-jdk8-openjdk-slim"
-  APP_VER: 8.5.55
+  IMAGE_FROM: "tomcat:8.5.56-jdk8-openjdk-slim"
+  APP_VER: 8.5.56
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
-  APP_VER_PATCH: 55
+  APP_VER_PATCH: 56
   MYSQL_CONNECTOR_J: 5.1.49
   #MYSQL_CONNECTOR_J: 8.0.20
 
