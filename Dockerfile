@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.56-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=8
 ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=56
+ARG APP_VER_PATCH=57
 
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
@@ -20,10 +20,10 @@ ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_CONNECTOR_J=8.0.20
+ARG MYSQL_CONNECTOR_J=8.0.21
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_CONNECTOR_J=10.3
+ARG AS400_CONNECTOR_J=10.4
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
