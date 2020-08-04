@@ -100,7 +100,7 @@ COPY ./conf /opt/tomcat/conf
 ```
 # Build commands
 ```
-docker build --rm=true -f Dockerfile --pull=true --build-arg IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim --build-arg APP_VER_MAJOR=8 --build-arg APP_VER_MINOR=5 --build-arg APP_VER_PATCH=51 .
+docker build --rm=true -f Dockerfile --pull=true --build-arg IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim --build-arg APP_VER_MAJOR=8 --build-arg APP_VER_MINOR=5 --build-arg APP_VER_PATCH=57 .
 ```
 
 # Quick reference
