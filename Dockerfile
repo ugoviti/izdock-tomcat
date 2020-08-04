@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim
+ARG IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,10 +13,17 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 ARG APP_VER_MAJOR=8
 ARG APP_VER_MINOR=5
 ARG APP_VER_PATCH=57
-
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
+
+## FIXME this format is not supported by Dockerfile find an automatic way
+#ARG APP_VER=8.5.57
+#ENV APP_VER=${APP_VER}
+#ENV APP_VER_SHORT="${APP_VER%.*}"
+#ENV APP_VER_MAJOR=${APP_VER/.*/}
+#ENV APP_VER_MINOR=${APP_VER_SHORT/*./}
+#ENV APP_VER_PATCH=${APP_VER/*./}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
