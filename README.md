@@ -47,6 +47,9 @@ You can then go to http://localhost:8888 or http://host-ip:8888 in a browser.
 Ovverride Config Directory:
 ```docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=tomcatadmin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_HOME=/data -v /tmp/tomcat:/data izdock/tomcat```
 
+More complex example:
+```docker run -it --rm -p 8080:8080 -p 4000:4000  --name tomcat9 -e APP_ADMIN_USERNAME=tomcatadmin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e CATALINA_OPTS="-server -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:MaxRAMPercentage=75.0 -XX:MinHeapFreeRatio=25 -XX:MaxHeapFreeRatio=50 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:NewRatio=3 -XX:SurvivorRatio=6 -XX:ReservedCodeCacheSize=320M -XX:+UseCodeCacheFlushing" -e JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Duser.timezone=Europe/Rome -Duser.language=it -Duser.region=IT -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345 -XX:-HeapDumpOnOutOfMemoryError -javaagent:/usr/local/tomcat/glowroot/glowroot.jar" izdock/tomcat:9.0.37```
+
 # Environment variables
 
 ## generic app configuration variables

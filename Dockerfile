@@ -35,6 +35,15 @@ ARG AS400_CONNECTOR_J=10.4
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
 
+## https://javaee.github.io/metro/download - https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/
+ARG METRO_VERSION=2.4.2
+
+## https://javaee.github.io/jaxb-v2/ - https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
+ARG JAXB_VERSION=2.3.3
+
+## https://github.com/redisson/redisson/releases
+ARG REDISSON_VERSION=3.13.3
+
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
 ENV TOMCAT_VERSION_MINOR  ${APP_VER_MINOR}
@@ -51,7 +60,9 @@ ENV DEBIAN_FRONTEND       noninteractive
 ENV APP_PLUGIN_MYSQL      1
 ENV APP_PLUGIN_AS400      1
 ENV APP_PLUGIN_GLOWROOT   1
-ENV APP_PLUGIN_REDISSON   0
+ENV APP_PLUGIN_METRO      1
+ENV APP_PLUGIN_JAXB       1
+ENV APP_PLUGIN_REDISSON   1
 
 # generic app configuration variables
 ENV APP_NAME              "tomcat"
@@ -138,24 +149,38 @@ RUN set -xe && \
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
      curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_CONNECTOR_J}.jar" \
      ;fi && \
-  # as400 java connector
+  # jt400 - as400 java connector
   if [ $APP_PLUGIN_AS400 = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" \
      ;fi &&\
-  # glowroot monitoring
+  # glowroot - java vm monitoring
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
      unzip "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" -d "${CATALINA_HOME}/" && \
      echo '{ "web": { "bindAddress": "0.0.0.0" } }' > "${CATALINA_HOME}/glowroot/admin.json" && \
      rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" \
      ;fi && \
+  # metro - webservice toolkit
+  if [ $APP_PLUGIN_METRO = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VERSION}/metro-standalone-${METRO_VERSION}.zip" -o "/tmp/metro-standalone-${METRO_VERSION}.zip" && \
+     unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
+     rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
+     ;fi && \
+  # jaxb - Java Architecture for XML Binding
+  if [ $APP_PLUGIN_JAXB = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/${JAXB_VERSION}/jaxb-ri-${JAXB_VERSION}.zip" -o "/tmp/jaxb-ri-${JAXB_VERSION}.zip" && \
+     unzip -j "/tmp/jaxb-ri-${JAXB_VERSION}.zip" */mod/*.jar -d "${CATALINA_HOME}/lib/" && \
+     rm -f "/tmp/jaxb-ri-${JAXB_VERSION}.zip" \
+     ;fi && \
   # redis session manager
   if [ $APP_PLUGIN_REDISSON = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/3.6.0/redisson-all-3.6.0.jar" -o "redisson-all-3.6.0.jar" && \
-     if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
-       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-8/3.6.0/redisson-tomcat-8-3.6.0.jar" -o "redisson-tomcat-8-3.6.0.jar" ; \
-      else \
-       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-7/3.6.0/redisson-tomcat-7-3.6.0.jar" -o "redisson-tomcat-7-3.6.0.jar" \
+     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VERSION}/redisson-all-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VERSION}.jar" && \
+     if [ $TOMCAT_VERSION_MAJOR -eq 7 ]; then \
+       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-7/${REDISSON_VERSION}/redisson-tomcat-7-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-7-${REDISSON_VERSION}.jar" ; \
+     if [ $TOMCAT_VERSION_MAJOR -eq 8 ]; then \
+       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-8/${REDISSON_VERSION}/redisson-tomcat-8-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-8-${REDISSON_VERSION}.jar" ; \
+     if [ $TOMCAT_VERSION_MAJOR -eq 9 ]; then \
+       curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-9/${REDISSON_VERSION}/redisson-tomcat-9-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-9-${REDISSON_VERSION}.jar" ; \
      ;fi \
      ;fi && \
   cd / && \
