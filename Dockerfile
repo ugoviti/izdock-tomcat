@@ -36,7 +36,7 @@ ARG AS400_CONNECTOR_J=10.4
 ARG GLOWROOT_VERSION=0.13.6
 
 ## https://javaee.github.io/metro/download - https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/
-ARG METRO_VERSION=2.4.2
+ARG METRO_VERSION=2.4.4
 
 ## https://javaee.github.io/jaxb-v2/ - https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
 ARG JAXB_VERSION=2.3.3
@@ -162,9 +162,19 @@ RUN set -xe && \
   ;fi && \
   # metro - webservice toolkit
   if [ $APP_PLUGIN_METRO = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VERSION}/metro-standalone-${METRO_VERSION}.zip" -o "/tmp/metro-standalone-${METRO_VERSION}.zip" && \
-     unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
-     rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
+     for PACKAGE in \
+     webservices-api \
+     webservices-extra \
+     webservices-extra-api \
+     webservices-rt \
+     webservices-tools \
+     ; do \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/glassfish/metro/${PACKAGE}/${METRO_VERSION}/${PACKAGE}-${METRO_VERSION}.jar" -o "${CATALINA_HOME}/lib/${PACKAGE}-${METRO_VERSION}.jar" \
+     ;done \
+
+     #curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VERSION}/metro-standalone-${METRO_VERSION}.zip" -o "/tmp/metro-standalone-${METRO_VERSION}.zip" && \
+     #unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
+     #rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
   ;fi && \
   # jaxb - Java Architecture for XML Binding
   if [ $APP_PLUGIN_JAXB = 1 ]; then \
