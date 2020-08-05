@@ -61,7 +61,7 @@ ENV APP_PLUGIN_MYSQL      1
 ENV APP_PLUGIN_AS400      1
 ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
-ENV APP_PLUGIN_JAXB       1
+ENV APP_PLUGIN_JAXB       0
 ENV APP_PLUGIN_REDISSON   1
 
 # generic app configuration variables
@@ -221,6 +221,10 @@ RUN set -xe && \
   # custom tomcat path compatibility
   ln -s "${APP_HOME}" /opt/tomcat
 
+# remove unused files
+#RUN set -xe && \
+#  rm -f ${CATALINA_HOME}/lib/webservices-rt.jar
+  
 # install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
 
