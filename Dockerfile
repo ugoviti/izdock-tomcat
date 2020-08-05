@@ -188,12 +188,6 @@ RUN set -xe && \
      curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VERSION_MAJOR}/${REDISSON_VERSION}/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" \
   ;fi && \
   cd / && \
-  # disable ssl engine
-  sed -i 's/SSLEngine="on"/SSLEngine="off"/g' "${CATALINA_HOME}/conf/server.xml" && \
-  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper (not working since tomcat:8.5.42-jdk8-openjdk-slim)
-  #sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties && \
-  # test: fix infinite dns cache jvm
-  #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security && \
   # cleanup system
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
   rm -rf /var/lib/apt/lists/* /tmp/*
@@ -232,8 +226,16 @@ RUN set -xe && \
   ln -s "${APP_HOME}" /opt/tomcat
 
 # remove unused files
-#RUN set -xe && \
-#  rm -f ${CATALINA_HOME}/lib/webservices-rt.jar
+RUN set -xe && \
+  # catalina.properties
+  sed 's/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\\nwebservices-*.jar,\\/' -i "${CATALINA_HOME}/conf/catalina.properties" && \
+  # disable ssl engine
+  sed 's/SSLEngine="on"/SSLEngine="off"/g' -i "${CATALINA_HOME}/conf/server.xml"
+  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper (not working since tomcat:8.5.42-jdk8-openjdk-slim)
+  #sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties && \
+  # test: fix infinite dns cache jvm
+  #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security
+  
   
 # install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
