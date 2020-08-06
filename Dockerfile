@@ -261,6 +261,7 @@ ENV UMASK           0002
 # container pre-entrypoint variables
 ENV MULTISERVICE    "false"
 ENV ENTRYPOINT_TINI "true"
+ENV APP_RUNAS       "true"
 
 # add files to container
 ADD Dockerfile filesystem README.md /
