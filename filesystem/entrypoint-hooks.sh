@@ -4,11 +4,11 @@
 
 # tomcat hooks
 hooks_always() {
-        echo "=> Hooks ALWAYS - ALL: Executing $APP configuration hooks..."
+        echo "=> Hooks ALWAYS - ALL: Executing $APP_NAME configuration hooks..."
 }
 
 hooks_onetime_conf() {
-echo "=> Hooks ONETIME - CONF: Executing $APP configuration hooks 'onetime'..."
+echo "=> Hooks ONETIME - CONF: Executing $APP_NAME configuration hooks 'onetime'..."
 PASSWORD_TYPE=$( [ ${APP_ADMIN_PASSWORD} ] && echo "preset" || echo "random" )
 
 APP_ADMIN_USERNAME="${APP_ADMIN_USERNAME:-manager}"
@@ -24,7 +24,7 @@ umask $UMASK
 sed "s/^UMASK.*/UMASK $UMASK/" -i /etc/login.defs
 
 if [ $APP_RECONFIG = 0 ]; then
-  echo "==> not reconfiguring $APP because APP_RECONFIG=0"
+  echo "==> not reconfiguring $APP_NAME because APP_RECONFIG=0"
 else
 
 # tomcat Catalina/localhost/manager.xml (allow remote management)
@@ -76,7 +76,7 @@ echo "=> Done!"
 
 if [ "$PASSWORD_TYPE" = "random" ]; then
 echo "========================================================================"
-echo "You can now connect to this $APP using:"
+echo "You can now connect to this $APP_NAME using:"
 echo "  username: ${APP_ADMIN_USERNAME}"
 echo "  password: ${APP_ADMIN_PASSWORD}"
 echo "========================================================================"
@@ -87,13 +87,26 @@ touch "${APP_CONF_DEFAULT}/.configured"
 }
 
 hooks_onetime_data() {
-echo "=> Hooks ONETIME - DATA: Executing $APP data hooks 'onetime'..."
-cp -a ${APP_DATA_DEFAULT}.dist/* ${APP_DATA_DEFAULT}/
+echo "=> Hooks ONETIME - DATA: Executing $APP_NAME data hooks 'onetime'..."
+cp -a "${APP_DATA_DEFAULT}".dist/* "${APP_DATA_DEFAULT}"/
+[ $? = 0 ] && touch "${APP_DATA_DEFAULT}/.inizialized"
+
+# tomcat bad configuration workaround:
+[ -e "${APP_DATA_DEFAULT}/webapps" ] && rmdir "${APP_DATA_DEFAULT}/webapps"
 }
 
 # always execute these hooks
 hooks_always
 
-[ -z "$(ls -A $APP_DATA_DEFAULT/)" ] && hooks_onetime_data || echo "=> Skipping Hooks ONETIME - DATA: Detected $APP data files already present in ${APP_DATA_DEFAULT}"
+# copy default data files if the directory is not inizialized
+if [ ! -f "${APP_DATA_DEFAULT}/.inizialized" ]; then
+    hooks_onetime_data
+  else
+    echo "=> Skipping Hooks ONETIME - DATA: Detected $APP_NAME data files already initialized into '${APP_DATA_DEFAULT}'"
+fi
 
-[ ! -f "${APP_CONF_DEFAULT}/.configured" ] && hooks_onetime_conf || echo "=> Skipping Hooks ONETIME - CONF: Detected $APP configuration files already present in ${APP_CONF_DEFAULT}"
+if [ ! -f "${APP_CONF_DEFAULT}/.configured" ]; then
+    hooks_onetime_conf
+  else
+    echo "=> Skipping Hooks ONETIME - CONF: Detected $APP_NAME configurations already initialized into '${APP_CONF_DEFAULT}'"
+fi
