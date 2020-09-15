@@ -147,7 +147,6 @@ steps:
   volumes:
   - name: docker
     path: /var/lib/docker
-
 ---
 
 kind: pipeline
@@ -223,5 +222,3 @@ steps:
   volumes:
   - name: docker
     path: /var/lib/docker
-
----
