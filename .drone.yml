@@ -1,5 +1,87 @@
 kind: pipeline
 type: docker
+name: tomcat9-multiarch
+
+environment:
+  IMAGE_FROM: "tomcat:9.0.37-jdk11-openjdk-slim-buster"
+  APP_VER: 9.0.37
+  APP_VER_MAJOR: 9
+  APP_VER_MINOR: 0
+  APP_VER_PATCH: 37
+  MYSQL_CONNECTOR_J: 8.0.21
+
+trigger:
+  event:
+  - push
+  - tag
+  branch:
+  - master
+
+#concurrency:
+#  limit: 1
+
+volumes:
+  - name: docker
+    host:
+      path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
+
+steps:
+- name: setup
+  image: alpine
+  commands:
+    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" > .tags
+    - echo -e -n ",$${APP_VER}" >> .tags
+    - echo -e -n ",$${APP_VER%.*}" >> .tags
+    - echo -e -n ",$${APP_VER%%.*}" >> .tags
+    - echo -e -n ",latest" >> .tags
+
+- name: build-arm32v7
+  image: plugins/docker
+  environment:
+    APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
+    APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
+    APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
+  settings:
+    repo: izdock/tomcat
+    build_args_from_env:
+    - IMAGE_FROM
+    - APP_VER
+    - APP_VER_MAJOR
+    - APP_VER_MINOR
+    - APP_VER_MINOR
+    - APP_VER_PATCH
+    - MYSQL_CONNECTOR_J
+    - APP_VER_BUILD
+    - APP_BUILD_COMMIT
+    - APP_BUILD_DATE
+    build_args:
+      - ARCH=arm
+      - REPO=arm32v7
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+  volumes:
+  - name: docker
+    path: /var/lib/docker
+
+- name: publish
+  image: plugins/manifest
+  settings:
+    spec: .drone-manifest.tmpl
+    ignore_missing: true
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+  volumes:
+  - name: docker
+    path: /var/lib/docker
+
+---
+
+kind: pipeline
+type: docker
 name: tomcat8
 
 environment:
@@ -140,84 +222,6 @@ steps:
     - APP_VER_BUILD
     - APP_BUILD_COMMIT
     - APP_BUILD_DATE
-    username:
-      from_secret: DOCKER_USERNAME
-    password:
-      from_secret: DOCKER_PASSWORD
-  volumes:
-  - name: docker
-    path: /var/lib/docker
-
----
-
-kind: pipeline
-type: docker
-name: tomcat9-multiarch
-
-environment:
-  IMAGE_FROM: "tomcat:9.0.37-jdk11-openjdk-slim-buster"
-  APP_VER: 9.0.37
-  APP_VER_MAJOR: 9
-  APP_VER_MINOR: 0
-  APP_VER_PATCH: 37
-  MYSQL_CONNECTOR_J: 8.0.21
-
-trigger:
-  event:
-  - push
-  - tag
-  branch:
-  - master
-
-#concurrency:
-#  limit: 1
-
-volumes:
-  - name: docker
-    host:
-      path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
-
-steps:
-- name: setup
-  image: alpine
-  commands:
-    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" > .tags
-    - echo -e -n ",$${APP_VER}" >> .tags
-    - echo -e -n ",$${APP_VER%.*}" >> .tags
-    - echo -e -n ",$${APP_VER%%.*}" >> .tags
-    - echo -e -n ",latest" >> .tags
-
-- name: build-arm32v7
-  image: plugins/docker
-  environment:
-    APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
-    APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
-    APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
-  settings:
-    repo: izdock/tomcat
-    build_args_from_env:
-    - IMAGE_FROM
-    - APP_VER
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_CONNECTOR_J
-    - APP_VER_BUILD
-    - APP_BUILD_COMMIT
-    - APP_BUILD_DATE
-    build_args:
-      - ARCH=arm
-      - REPO=arm32v7
-  volumes:
-  - name: docker
-    path: /var/lib/docker
-
-- name: publish
-  image: plugins/manifest
-  settings:
-    spec: .drone-manifest.tmpl
-    ignore_missing: true
     username:
       from_secret: DOCKER_USERNAME
     password:
