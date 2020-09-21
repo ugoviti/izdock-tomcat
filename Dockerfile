@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.57-jdk8-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:8.5.58-jdk8-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,13 +12,13 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=8
 ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=57
+ARG APP_VER_PATCH=58
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
-#ARG APP_VER=8.5.57
+#ARG APP_VER=8.5.58
 #ENV APP_VER=${APP_VER}
 #ENV APP_VER_SHORT="${APP_VER%.*}"
 #ENV APP_VER_MAJOR=${APP_VER/.*/}
@@ -35,14 +35,14 @@ ARG AS400_CONNECTOR_J=10.4
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
 
-## https://javaee.github.io/metro/download - https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/
+## https://javaee.github.io/metro/download - https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
 ARG METRO_VERSION=2.4.4
 
 ## https://javaee.github.io/jaxb-v2/ - https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.13.3
+ARG REDISSON_VERSION=3.13.4
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
