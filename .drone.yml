@@ -2,17 +2,6 @@ kind: pipeline
 type: docker
 name: tomcat9-arm
 
-environment:
-  IMAGE_FROM: "arm32v7/tomcat:9.0.37-jdk11-adoptopenjdk-hotspot"
-  APP_VER: 9.0.37
-  APP_VER_MAJOR: 9
-  APP_VER_MINOR: 0
-  APP_VER_PATCH: 37
-  MYSQL_CONNECTOR_J: 8.0.21
-  APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
-  APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
-  APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
-
 trigger:
   event:
   - push
@@ -44,6 +33,16 @@ steps:
 
 - name: publish
   image: plugins/docker
+  environment:
+    IMAGE_FROM: "arm32v7/tomcat:9.0.37-jdk11-adoptopenjdk-hotspot"
+    APP_VER: 9.0.37
+    APP_VER_MAJOR: 9
+    APP_VER_MINOR: 0
+    APP_VER_PATCH: 37
+    MYSQL_CONNECTOR_J: 8.0.21
+    APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
+    APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
+    APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
   settings:
     repo: izdock/tomcat
     build_args_from_env:
