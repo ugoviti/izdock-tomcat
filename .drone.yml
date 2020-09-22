@@ -19,7 +19,7 @@ trigger:
 
 platform:
   os: linux
-  arch: arm
+  arch: arm32v7
 
 #concurrency:
 #  limit: 1
