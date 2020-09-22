@@ -42,12 +42,12 @@ steps:
 - name: publish
   image: plugins/docker
   environment:
-    # FIXME: test variables expansion doesn't works
-    #IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
-    #APP_VER_MAJOR: "${APP_VER/.*/}"
-    #APP_VER_SHORT: "${APP_VER%.*}"
-    #APP_VER_MINOR: "${APP_VER_SHORT/*./}"
-    #APP_VER_PATCH: "${APP_VER/*./}"
+    IMAGE_FROM: "arm32v7/tomcat:9.0.37-jdk11-adoptopenjdk-hotspot"
+    APP_VER: 9.0.37
+    APP_VER_MAJOR: 9
+    APP_VER_MINOR: 0
+    APP_VER_PATCH: 37
+    MYSQL_CONNECTOR_J: 8.0.21
     APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
     APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
     APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
