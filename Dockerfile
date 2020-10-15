@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.58-jdk8-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:8.5.59-jdk8-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=8
 ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=58
+ARG APP_VER_PATCH=59
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -42,7 +42,7 @@ ARG METRO_VERSION=2.4.4
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.13.4
+ARG REDISSON_VERSION=3.13.6
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
@@ -255,27 +255,24 @@ VOLUME ${APP_HOME}
 # turn on tomcat user
 #USER ${APP_USR}
 
-# set default umask
-ENV UMASK           0002
-
-# container pre-entrypoint variables
-ENV MULTISERVICE    "false"
-ENV ENTRYPOINT_TINI "true"
-ENV APP_RUNAS       "true"
-
 # add files to container
 ADD Dockerfile filesystem README.md /
 
-# CI args
+# container pre-entrypoint variables
+ENV APP_RUNAS          "true"
+ENV MULTISERVICE       "false"
+ENV ENTRYPOINT_TINI    "true"
+ENV UMASK              0002
+
+## CI args
 ARG APP_VER_BUILD
 ARG APP_BUILD_COMMIT
 ARG APP_BUILD_DATE
 
 # define other build variables
-ENV APP_FQDN=""
-ENV APP_VER_BUILD="${APP_VER_BUILD}"
-ENV APP_BUILD_COMMIT="${APP_BUILD_COMMIT}"
-ENV APP_BUILD_DATE="${APP_BUILD_DATE}"
+ENV APP_VER_BUILD    "${APP_VER_BUILD}"
+ENV APP_BUILD_COMMIT "${APP_BUILD_COMMIT}"
+ENV APP_BUILD_DATE   "${APP_BUILD_DATE}"
 
 # start the container process
 ENTRYPOINT ["/entrypoint.sh"]

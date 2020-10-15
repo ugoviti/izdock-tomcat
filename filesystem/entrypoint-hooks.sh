@@ -89,7 +89,7 @@ touch "${APP_CONF_DEFAULT}/.configured"
 hooks_onetime_data() {
 echo "=> Hooks ONETIME - DATA: Executing $APP_NAME data hooks 'onetime'..."
 cp -a "${APP_DATA_DEFAULT}".dist/* "${APP_DATA_DEFAULT}"/
-[ $? = 0 ] && touch "${APP_DATA_DEFAULT}/.inizialized"
+[ $? = 0 ] && touch "${APP_DATA_DEFAULT}/.initialized"
 
 # tomcat bad configuration workaround:
 [ -e "${APP_DATA_DEFAULT}/webapps" ] && rmdir "${APP_DATA_DEFAULT}/webapps"
@@ -98,8 +98,8 @@ cp -a "${APP_DATA_DEFAULT}".dist/* "${APP_DATA_DEFAULT}"/
 # always execute these hooks
 hooks_always
 
-# copy default data files if the directory is not inizialized
-if [ ! -f "${APP_DATA_DEFAULT}/.inizialized" ]; then
+# copy default data files if the directory is not initialized
+if [ ! -f "${APP_DATA_DEFAULT}/.initialized" ]; then
     hooks_onetime_data
   else
     echo "=> Skipping Hooks ONETIME - DATA: Detected $APP_NAME data files already initialized into '${APP_DATA_DEFAULT}'"
