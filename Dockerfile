@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:8.5.59-jdk8-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:9.0.39-jdk11-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -10,9 +10,9 @@ FROM ${IMAGE_FROM}
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 # default app args used during build step
-ARG APP_VER_MAJOR=8
-ARG APP_VER_MINOR=5
-ARG APP_VER_PATCH=59
+ARG APP_VER_MAJOR=9
+ARG APP_VER_MINOR=0
+ARG APP_VER_PATCH=39
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -27,7 +27,7 @@ ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_CONNECTOR_J=8.0.21
+ARG MYSQL_CONNECTOR_J=8.0.22
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_CONNECTOR_J=10.4
