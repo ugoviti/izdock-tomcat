@@ -3,11 +3,11 @@ type: docker
 name: tomcat9-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:9.0.39-jdk11-openjdk-slim-buster"
-  APP_VER: 9.0.39
+  IMAGE_FROM: "tomcat:9.0.41-jdk11-openjdk-slim-buster"
+  APP_VER: 9.0.41
   APP_VER_MAJOR: 9
   APP_VER_MINOR: 0
-  APP_VER_PATCH: 39
+  APP_VER_PATCH: 41
   MYSQL_CONNECTOR_J: 8.0.22
 
 trigger:
@@ -78,11 +78,11 @@ type: docker
 name: tomcat8-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:8.5.59-jdk8-openjdk-slim-buster"
-  APP_VER: 8.5.59
+  IMAGE_FROM: "tomcat:8.5.61-jdk8-openjdk-slim-buster"
+  APP_VER: 8.5.61
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
-  APP_VER_PATCH: 59
+  APP_VER_PATCH: 61
   MYSQL_CONNECTOR_J: 5.1.49
 
 trigger:
