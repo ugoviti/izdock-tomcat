@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:9.0.41-jdk11-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:9.0.43-jdk11-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=41
+ARG APP_VER_PATCH=43
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
