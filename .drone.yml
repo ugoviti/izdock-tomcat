@@ -8,7 +8,7 @@ environment:
   APP_VER_MAJOR: 9
   APP_VER_MINOR: 0
   APP_VER_PATCH: 43
-  MYSQL_CONNECTOR_J: 8.0.23
+  MYSQL_CONNECTOR_J: 8.0.22
 
 trigger:
   event:
