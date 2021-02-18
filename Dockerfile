@@ -42,7 +42,19 @@ ARG METRO_VERSION=2.4.4
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.14.0
+ARG REDISSON_VERSION=3.15.0
+
+## https://javaee.github.io/javamail/
+ARG JAVAMAIL_VERSION=1.6.2
+
+## https://repo1.maven.org/maven2/javax/mail/javax.mail-api/
+ARG JAVAXMAIL_API_VERSION=1.6.2
+
+## https://repo1.maven.org/maven2/javax/activation/javax.activation-api
+ARG JAVAX_ACTIVATION_VERSION=1.2.0
+
+## https://github.com/eclipse-ee4j/jaf/releases
+ARG JAKARTA_ACTIVATION_VERSION=2.0.0
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
@@ -63,6 +75,10 @@ ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
 ENV APP_PLUGIN_JAXB       0
 ENV APP_PLUGIN_REDISSON   1
+ENV APP_PLUGIN_JAVAMAIL   1
+ENV APP_PLUGIN_JAVAXMAIL_API 1
+ENV APP_PLUGIN_JAVAX_ACTIVATION 1
+ENV APP_PLUGIN_JAKARTA_ACTIVATION 1
 
 # generic app configuration variables
 ENV APP_NAME              "tomcat"
@@ -186,6 +202,22 @@ RUN set -xe && \
   if [ $APP_PLUGIN_REDISSON = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VERSION}/redisson-all-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VERSION}.jar" && \
      curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VERSION_MAJOR}/${REDISSON_VERSION}/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" \
+  ;fi && \
+  # javamail
+  if [ $APP_PLUGIN_JAVAMAIL = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VERSION}/javax.mail-${JAVAMAIL_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VERSION}.jar" && \
+  ;fi && \
+  # javaxmail api
+  if [ $APP_PLUGIN_JAVAXMAIL_API = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VERSION}/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" && \
+  ;fi && \
+  # javax.activation
+  if [ $APP_PLUGIN_JAVAX_ACTIVATION = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VERSION}/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" && \
+  ;fi && \
+  # jakarta.activation
+  if [ $APP_PLUGIN_JAKARTA_ACTIVATION = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VERSION}/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" && \
   ;fi && \
   cd / && \
   # cleanup system
