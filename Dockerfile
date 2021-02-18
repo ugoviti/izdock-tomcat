@@ -30,7 +30,7 @@ ENV APP_VER=${APP_VER}
 ARG MYSQL_CONNECTOR_J=8.0.22
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_CONNECTOR_J=10.4
+ARG AS400_CONNECTOR_J=10.5
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
