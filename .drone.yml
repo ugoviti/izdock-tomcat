@@ -85,12 +85,12 @@ environment:
   APP_VER_PATCH: 63
   MYSQL_CONNECTOR_J: 5.1.49
 
-trigger:
-  event:
-  - push
-  - tag
-  branch:
-  - master
+#trigger:
+  #event:
+  #- push
+  #- tag
+  #branch:
+  #- master
 
 platform:
   os: linux
