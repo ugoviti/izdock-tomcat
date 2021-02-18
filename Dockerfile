@@ -187,7 +187,6 @@ RUN set -xe && \
      ; do \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/glassfish/metro/${PACKAGE}/${METRO_VERSION}/${PACKAGE}-${METRO_VERSION}.jar" -o "${CATALINA_HOME}/lib/${PACKAGE}-${METRO_VERSION}.jar" \
      ;done \
-
      #curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VERSION}/metro-standalone-${METRO_VERSION}.zip" -o "/tmp/metro-standalone-${METRO_VERSION}.zip" && \
      #unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
      #rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
@@ -205,19 +204,19 @@ RUN set -xe && \
   ;fi && \
   # javamail
   if [ $APP_PLUGIN_JAVAMAIL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VERSION}/javax.mail-${JAVAMAIL_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VERSION}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VERSION}/javax.mail-${JAVAMAIL_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VERSION}.jar" \
   ;fi && \
   # javaxmail api
   if [ $APP_PLUGIN_JAVAXMAIL_API = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VERSION}/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VERSION}/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" \
   ;fi && \
   # javax.activation
   if [ $APP_PLUGIN_JAVAX_ACTIVATION = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VERSION}/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VERSION}/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" \
   ;fi && \
   # jakarta.activation
   if [ $APP_PLUGIN_JAKARTA_ACTIVATION = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VERSION}/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VERSION}/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" \
   ;fi && \
   cd / && \
   # cleanup system
