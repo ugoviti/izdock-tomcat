@@ -76,7 +76,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 # link ${APP_HOME}/conf/[enginename]/[hostname]/context.xml to ${APP_SHARED_DEFAULT}/conf/context.xml if exist
 if [ -e "${APP_SHARED_DEFAULT}/conf/context.xml" ]; then
  echo "=> linking ${APP_SHARED_DEFAULT}/conf/context.xml to ${APP_HOME}/conf/Catalina/localhost/context.xml"
- ln -s "${APP_SHARED_DEFAULT}/conf/context.xml" "${APP_HOME}/conf/Catalina/localhost/context.xml"
+ ln -s "${APP_SHARED_DEFAULT}/conf/context.xml" "${APP_HOME}/conf/Catalina/localhost/context.xml.default"
 fi
 
 echo
