@@ -20,6 +20,10 @@ appHooks() {
   echo "=> Starting container $APP_DESCRIPTION -> $APP_NAME:$APP_VER (build:${APP_VER_BUILD} commit:${APP_BUILD_COMMIT} date:${APP_BUILD_DATE})"
   echo "==============================================================================="
 
+  # legacy options fixes
+  [ "$APP_RELINK" = "0" ] && APP_RELINK="false"
+  [ "$APP_RELINK" = "1" ] && APP_RELINK="true"
+  
   # verify if exist custom directory overrides
   if [ "$APP_RELINK" = "true" ]; then
   [ ! -z "${APP_CONF}" ] && relink_dir "${APP_CONF_DEFAULT}" "${APP_CONF}"
