@@ -103,7 +103,7 @@ COPY ./conf /opt/tomcat/conf
 ```
 # Build commands
 ```
-docker build --rm=true -f Dockerfile --pull=true --build-arg IMAGE_FROM=tomcat:9.0.43-jdk11-openjdk-slim-buster --build-arg APP_VER_MAJOR=9 --build-arg APP_VER_MINOR=0 --build-arg APP_VER_PATCH=43 .
+docker build --rm=true -f Dockerfile --pull=true --build-arg IMAGE_FROM=tomcat:9.0.43-jdk11-openjdk-slim-buster --build-arg APP_VER_MAJOR=9 --build-arg APP_VER_MINOR=0 --build-arg APP_VER_PATCH=43 -t tomcat .
 ```
 
 # Quick reference

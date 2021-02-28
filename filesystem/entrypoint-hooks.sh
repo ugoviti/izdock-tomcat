@@ -72,6 +72,14 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
   <role rolename=\"admin-script\"/>
   <user username=\"$APP_ADMIN_USERNAME\" password=\"$APP_ADMIN_PASSWORD\" roles=\"manager,manager-gui,manager-script,manager-jmx,admin,admin-gui,admin-script\"/>
 </tomcat-users>" > "${APP_CONF_DEFAULT}/tomcat-users.xml"
+
+# link ${APP_CONF_DEFAULT}/conf/[enginename]/[hostname]/context.xml to ${APP_CONF_DEFAULT}/shared/conf/context.xml if exist
+if [ -e "${APP_CONF_DEFAULT}/shared/conf/context.xml" ]; then
+ echo "=> linking ${APP_CONF_DEFAULT}/shared/conf/context.xml to ${APP_CONF_DEFAULT}/conf/Catalina/localhost/context.xml"
+ ln -s "${APP_CONF_DEFAULT}/shared/conf/context.xml" "${APP_CONF_DEFAULT}/conf/Catalina/localhost/context.xml"
+fi
+
+echo
 echo "=> Done!"
 
 if [ "$PASSWORD_TYPE" = "random" ]; then

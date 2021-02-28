@@ -238,14 +238,17 @@ RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
 
 # remove unnecessary default components
 RUN set -xe && \
- rm -f  ${CATALINA_HOME}/bin/*.bat && \
- rm -rf ${CATALINA_HOME}/webapps/docs && \
- rm -rf ${CATALINA_HOME}/webapps/examples
+  rm -f  ${CATALINA_HOME}/bin/*.bat && \
+  rm -rf ${CATALINA_HOME}/webapps.dist/docs && \
+  rm -rf ${CATALINA_HOME}/webapps.dist/examples
 
-# alpine user www-data compatibility
-#RUN set -x \
-#        && addgroup -g 82 -S www-data \
-#        && adduser -u 82 -D -S -G www-data www-data
+# create shared structure and conf/Catalina/localhost
+RUN set -xe && \
+  mkdir -p "${APP_SHARED_DEFAULT}/classes" && \
+  mkdir -p "${APP_SHARED_DEFAULT}/lib" && \
+  mkdir -p "${APP_SHARED_DEFAULT}/fonts" && \
+  mkdir -p "${APP_SHARED_DEFAULT}/conf" && \
+  mkdir -p "${CATALINA_HOME}/conf/Catalina/localhost"
 
 # pre entrypoint management
 RUN set -xe && \
@@ -253,8 +256,9 @@ RUN set -xe && \
   groupadd -g "${APP_GID}" "${APP_GRP}" && \
   useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP_DESCRIPTION" -g "${APP_GRP}" "${APP_USR}" && \
   chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ && \
+  chmod 770 "${APP_SHARED_DEFAULT}" && \
   # custom tomcat path compatibility
-  ln -s "${APP_HOME}" /opt/tomcat
+  ln -s "${CATALINA_HOME}" /opt/tomcat
 
 # remove unused files
 RUN set -xe && \
