@@ -79,7 +79,6 @@ if [ -e "${APP_SHARED_DEFAULT}/conf/context.xml" ]; then
  ln -s "${APP_SHARED_DEFAULT}/conf/context.xml" "${APP_HOME}/conf/Catalina/localhost/context.xml.default"
 fi
 
-echo
 echo "=> Done!"
 
 if [ "$PASSWORD_TYPE" = "random" ]; then
