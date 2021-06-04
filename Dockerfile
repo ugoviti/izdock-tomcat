@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:9.0.44-jdk11-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:9.0.46-jdk11-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=44
+ARG APP_VER_PATCH=46
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -42,7 +42,7 @@ ARG METRO_VERSION=2.4.4
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.15.0
+ARG REDISSON_VERSION=3.15.5
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VERSION=1.6.2
@@ -54,7 +54,7 @@ ARG JAVAXMAIL_API_VERSION=1.6.2
 ARG JAVAX_ACTIVATION_VERSION=1.2.0
 
 ## https://github.com/eclipse-ee4j/jaf/releases
-ARG JAKARTA_ACTIVATION_VERSION=2.0.0
+ARG JAKARTA_ACTIVATION_VERSION=2.0.1
 
 # components versions
 ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}

@@ -9,7 +9,9 @@ environment:
   APP_VER_MINOR: 0
   APP_VER_PATCH: 46
   # https://dev.mysql.com/doc/relnotes/connector-j/8.0/en/
-  MYSQL_CONNECTOR_J: 8.0.25
+  ## stuck to 8.0.22 because error:
+  ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2021-01-04T23:21:50
+  MYSQL_CONNECTOR_J: 8.0.22
 
 trigger:
   event:
