@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:9.0.46-jdk11-openjdk-slim-buster
+ARG IMAGE_FROM=tomcat:9.0.50-jdk11-openjdk-slim-buster
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=46
+ARG APP_VER_PATCH=50
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -30,7 +30,7 @@ ENV APP_VER=${APP_VER}
 ARG MYSQL_CONNECTOR_J=8.0.22
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_CONNECTOR_J=10.5
+ARG AS400_CONNECTOR_J=10.6
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
@@ -42,7 +42,7 @@ ARG METRO_VERSION=2.4.4
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.15.5
+ARG REDISSON_VERSION=3.16.0
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VERSION=1.6.2
@@ -70,7 +70,7 @@ ENV DEBIAN_FRONTEND       noninteractive
 
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
-ENV APP_PLUGIN_AS400      1
+ENV APP_PLUGIN_AS400      0
 ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
 ENV APP_PLUGIN_JAXB       0
