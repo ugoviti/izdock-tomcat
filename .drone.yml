@@ -3,11 +3,11 @@ type: docker
 name: tomcat9-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:9.0.50-jdk11-openjdk-slim-buster"
-  APP_VER: 9.0.50
+  IMAGE_FROM: "tomcat:9.0.54-jdk11-openjdk-slim-buster"
+  APP_VER: 9.0.54
   APP_VER_MAJOR: 9
   APP_VER_MINOR: 0
-  APP_VER_PATCH: 50
+  APP_VER_PATCH: 54
   # https://dev.mysql.com/doc/relnotes/connector-j/8.0/en/
   ## stuck to 8.0.22 because error:
   ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2021-01-04T23:21:50
@@ -81,11 +81,11 @@ type: docker
 name: tomcat8-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:8.5.66-jdk8-openjdk-slim-buster"
-  APP_VER: 8.5.69
+  IMAGE_FROM: "tomcat:8.5.72-jdk8-openjdk-slim-buster"
+  APP_VER: 8.5.72
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
-  APP_VER_PATCH: 69
+  APP_VER_PATCH: 72
   MYSQL_CONNECTOR_J: 5.1.49
 
 trigger:
