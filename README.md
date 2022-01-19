@@ -2,7 +2,8 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
--	`8.5.X-BUILD`, `8.5.X`, `8.5`, `8`, `latest`
+-	`9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest`
+-	`8.5.X-BUILD`, `8.5.X`, `8.5`, `8`
 -	`7.0.X-BUILD`, `7.0.X`, `7.0`, `7`
 
 Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
@@ -12,7 +13,9 @@ Where **X** is the patch version number, and **BUILD** is the build number (look
 
 # Features
 - Small image footprint (based on [Linux Debian](/_/debian/) image)
-- Using OpenJDK 1.8 for Tomcat 8.x and OpenJDK 1.7 for Tomcat 7.x
+- OpenJDK 11 for Tomcat 9.x
+- OpenJDK 1.8 for Tomcat 8.x
+- OpenJDK 1.7 for Tomcat 7.x
 - APR Native Libraries compiled
 - Many customizable variables to use
 - Included MySQL Connector 8.x
