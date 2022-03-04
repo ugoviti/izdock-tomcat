@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=56
+ARG APP_VER_PATCH=59
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -27,14 +27,14 @@ ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_CONNECTOR_J=8.0.22
+ARG MYSQL_JDBC_VERSION=8.0.22
 
 # https://go.microsoft.com/fwlink/?linkid=2186164
 # https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
-ARG MSSQL_CONNECTOR_J=10.2.0
+ARG MSSQL_JDBC_VERSION=10.2.0
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_CONNECTOR_J=10.7
+ARG AS400_JDBC_VERSION=10.7
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
@@ -168,15 +168,15 @@ RUN set -xe && \
   cd "${CATALINA_HOME}/lib" && \
   # mysql java connector
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_CONNECTOR_J}.jar" \
+     curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VERSION}.jar" \
   ;fi && \
   # mssql java connector
   if [ $APP_PLUGIN_MSSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_${MSSQL_CONNECTOR_J}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/shared/lib/" "*/enu/mssql-jdbc-${MSSQL_CONNECTOR_J}.jre11.jar" \
+     curl -fSL --connect-timeout 10 "https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_${MSSQL_JDBC_VERSION}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/shared/lib/" "*/enu/mssql-jdbc-${MSSQL_JDBC_VERSION}.jre11.jar" \
   ;fi && \
   # jt400 - as400 java connector
   if [ $APP_PLUGIN_AS400 = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_CONNECTOR_J}/jt400-${AS400_CONNECTOR_J}.jar" -o "jt400-${AS400_CONNECTOR_J}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_JDBC_VERSION}/jt400-${AS400_JDBC_VERSION}.jar" -o "jt400-${AS400_JDBC_VERSION}.jar" \
   ;fi &&\
   # glowroot - java vm monitoring
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
