@@ -29,6 +29,10 @@ ENV APP_VER=${APP_VER}
 ## https://dev.mysql.com/downloads/connector/j/
 ARG MYSQL_CONNECTOR_J=8.0.22
 
+# https://go.microsoft.com/fwlink/?linkid=2186164
+# https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
+ARG MSSQL_CONNECTOR_J=10.2.0
+
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_CONNECTOR_J=10.7
 
@@ -70,6 +74,7 @@ ENV DEBIAN_FRONTEND       noninteractive
 
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
+ENV APP_PLUGIN_MSSQL      1
 ENV APP_PLUGIN_AS400      0
 ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
@@ -164,6 +169,10 @@ RUN set -xe && \
   # mysql java connector
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
      curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_CONNECTOR_J}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_CONNECTOR_J}.jar" \
+  ;fi && \
+  # mssql java connector
+  if [ $APP_PLUGIN_MSSQL = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_${MSSQL_CONNECTOR_J}.0_enu.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "enu/mssql-jdbc-${MSSQL_CONNECTOR_J}.jre11.jar" \
   ;fi && \
   # jt400 - as400 java connector
   if [ $APP_PLUGIN_AS400 = 1 ]; then \
