@@ -1,4 +1,4 @@
-ARG IMAGE_FROM=tomcat:9.0.56-jre11-openjdk-slim-bullseye
+ARG IMAGE_FROM=tomcat:9.0.62-jre11-openjdk-slim-bullseye
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +12,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=59
+ARG APP_VER_PATCH=62
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -29,7 +29,7 @@ ENV APP_VER=${APP_VER}
 ## https://dev.mysql.com/downloads/connector/j/
 ARG MYSQL_JDBC_VERSION=8.0.22
 
-# https://go.microsoft.com/fwlink/?linkid=2186164
+# https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 # https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
 ARG MSSQL_JDBC_VERSION=10.2.0
 
