@@ -1,13 +1,119 @@
 kind: pipeline
 type: docker
-name: tomcat9-amd64
+name: tomcat10-amd64
 
 environment:
-  APP_VER: 9.0.62
+  IMAGE_FROM: "tomcat:10.0.20-jdk17-openjdk-slim-bullseye"
+  APP_VER: 10.0.20
+  APP_VER_MAJOR: 10
+  APP_VER_MINOR: 0
+  APP_VER_PATCH: 20
   # https://dev.mysql.com/doc/relnotes/connector-j/8.0/en/
   ## stuck to 8.0.22 because error:
   ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2021-01-04T23:21:50
-  MYSQL_CONNECTOR_J: 8.0.22
+  #MYSQL_JDBC_VERSION: 8.0.22
+
+trigger:
+  event:
+  - push
+  - tag
+  branch:
+  - master
+
+platform:
+  os: linux
+  arch: amd64
+
+#concurrency:
+#  limit: 1
+
+volumes:
+  - name: cache
+    host:
+      path: /var/cache/drone/${DRONE_REPO}/${DRONE_STAGE_NAME}
+
+workspace:
+  base: /drone
+  path: src
+
+steps:
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /cache
+  settings:
+    restore: true
+    mount:
+    - /drone/docker
+
+- name: setup
+  image: alpine
+  commands:
+    - echo -e -n "$${APP_VER}-${DRONE_BUILD_NUMBER}" > .tags
+    - echo -e -n ",$${APP_VER}" >> .tags
+    - echo -e -n ",$${APP_VER%.*}" >> .tags
+    - echo -e -n ",$${APP_VER%%.*}" >> .tags
+    #- echo -e -n ",latest" >> .tags
+
+- name: publish
+  image: plugins/docker
+  environment:
+    APP_VER_BUILD: "${DRONE_BUILD_NUMBER}"
+    APP_BUILD_COMMIT: "${DRONE_COMMIT_SHA:0:7}"
+    APP_BUILD_DATE: "${DRONE_BUILD_FINISHED}"
+  settings:
+    repo: izdock/tomcat
+    build_args_from_env:
+    - IMAGE_FROM
+    - APP_VER
+    - APP_VER_MAJOR
+    - APP_VER_MINOR
+    - APP_VER_PATCH
+    - MYSQL_JDBC_VERSION
+    - APP_VER_BUILD
+    - APP_BUILD_COMMIT
+    - APP_BUILD_DATE
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /cache
+  settings:
+    rebuild: true
+    mount:
+    - /drone/docker
+
+- name: notify
+  image: plugins/matrix
+  settings:
+    homeserver: https://quantico.in
+    roomid: UCuIdxzWsiiboEXriU:quantico.in
+    username:
+      from_secret: MATRIX_USERNAME
+    password:
+      from_secret: MATRIX_PASSWORD
+    
+---
+kind: pipeline
+type: docker
+name: tomcat9-amd64
+
+environment:
+  IMAGE_FROM: "tomcat:9.0.62-jre11-openjdk-slim-bullseye"
+  APP_VER: 9.0.62
+  APP_VER_MAJOR: 9
+  APP_VER_MINOR: 0
+  APP_VER_PATCH: 62
+  # https://dev.mysql.com/doc/relnotes/connector-j/8.0/en/
+  ## stuck to 8.0.22 because error:
+  ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2021-01-04T23:21:50
+  MYSQL_JDBC_VERSION: 8.0.22
 
 trigger:
   event:
@@ -55,7 +161,7 @@ steps:
 - name: publish
   image: plugins/docker
   environment:
-    # FIXME: test variables expansion doesn't works
+    # FIXME: TEST variables expansion doesn't works
     #IMAGE_FROM: "tomcat:${APP_VER}-jdk8-openjdk-slim"
     #APP_VER_MAJOR: "${APP_VER/.*/}"
     #APP_VER_SHORT: "${APP_VER%.*}"
@@ -71,9 +177,8 @@ steps:
     - APP_VER
     - APP_VER_MAJOR
     - APP_VER_MINOR
-    - APP_VER_MINOR
     - APP_VER_PATCH
-    - MYSQL_CONNECTOR_J
+    - MYSQL_JDBC_VERSION
     - APP_VER_BUILD
     - APP_BUILD_COMMIT
     - APP_BUILD_DATE
@@ -103,7 +208,7 @@ environment:
   APP_VER_MAJOR: 8
   APP_VER_MINOR: 5
   APP_VER_PATCH: 72
-  MYSQL_CONNECTOR_J: 5.1.49
+  MYSQL_JDBC_VERSION: 5.1.49
 
 trigger:
   event:
@@ -160,7 +265,6 @@ steps:
     - IMAGE_FROM
     - APP_VER
     - APP_VER_MAJOR
-    - APP_VER_MINOR
     - APP_VER_MINOR
     - APP_VER_PATCH
     - MYSQL_CONNECTOR_J
