@@ -3,11 +3,11 @@ type: docker
 name: tomcat10-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:10.0.21-jdk17-openjdk-slim-bullseye"
-  APP_VER: 10.0.21
+  IMAGE_FROM: "tomcat:10.0.20-jdk17-openjdk-slim-bullseye"
+  APP_VER: 10.0.20
   APP_VER_MAJOR: 10
   APP_VER_MINOR: 0
-  APP_VER_PATCH: 21
+  APP_VER_PATCH: 20
 
 trigger:
   event:
