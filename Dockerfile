@@ -31,22 +31,24 @@ ARG MYSQL_JDBC_VERSION=8.0.29
 
 # https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 # https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
-ARG MSSQL_JDBC_VERSION=10.2.0
+ARG MSSQL_JDBC_VERSION=10.2.1
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VERSION=10.7
+ARG AS400_JDBC_VERSION=11.0
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
 
-## https://javaee.github.io/metro/download - https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
+## https://javaee.github.io/metro/download
+## https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
 ARG METRO_VERSION=2.4.4
 
-## https://javaee.github.io/jaxb-v2/ - https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
+## https://javaee.github.io/jaxb-v2/
+## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.16.3
+ARG REDISSON_VERSION=3.17.3
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VERSION=1.6.2
@@ -75,7 +77,7 @@ ENV DEBIAN_FRONTEND       noninteractive
 # app plugins enabled
 ENV APP_PLUGIN_MYSQL      1
 ENV APP_PLUGIN_MSSQL      1
-ENV APP_PLUGIN_AS400      0
+ENV APP_PLUGIN_AS400      1
 ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
 ENV APP_PLUGIN_JAXB       0
