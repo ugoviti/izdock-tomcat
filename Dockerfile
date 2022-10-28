@@ -1,4 +1,5 @@
-ARG IMAGE_FROM=tomcat:9.0.63-jre11-openjdk-slim-bullseye
+# https://hub.docker.com/_/tomcat
+ARG IMAGE_FROM=tomcat:9.0.65-jre11-openjdk-slim-bullseye
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -12,7 +13,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=63
+ARG APP_VER_PATCH=65
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -27,7 +28,7 @@ ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://dev.mysql.com/downloads/connector/j/
-ARG MYSQL_JDBC_VERSION=8.0.29
+ARG MYSQL_JDBC_VERSION=8.0.31
 
 # https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 # https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
@@ -48,7 +49,7 @@ ARG METRO_VERSION=2.4.4
 ARG JAXB_VERSION=2.3.3
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.17.3
+ARG REDISSON_VERSION=3.17.7
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VERSION=1.6.2
@@ -156,6 +157,7 @@ RUN set -xe && \
     ca-certificates \
     gnupg \
     netcat \
+    curl \
     && \
   # install tini as init container
   if [ $TOMCAT_VERSION \> 8.0.0 ]; then \
