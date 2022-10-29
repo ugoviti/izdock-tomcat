@@ -43,7 +43,7 @@ Apache Tomcat software powers numerous large-scale, mission-critical web applica
 You can test it by visiting http://container-ip:8080 in a browser
 
 If you need access outside the host, on port 8888:
-```docker run -it --rm -p 8888:8080 izdock/tomcat```
+```docker run -it --rm --name tomcat -p 8888:8080 tomcat```
 
 You can then go to http://localhost:8888 or http://host-ip:8888 in a browser.
 
@@ -105,6 +105,11 @@ FROM izdock/tomcat
 COPY ./conf /opt/tomcat/conf
 ```
 # Build commands
+```
+docker build -t tomcat .
+```
+
+Or overriding some options:
 ```
 docker build --rm=true -f Dockerfile --pull=true --build-arg IMAGE_FROM=tomcat:9.0.43-jdk11-openjdk-slim-buster --build-arg APP_VER_MAJOR=9 --build-arg APP_VER_MINOR=0 --build-arg APP_VER_PATCH=43 -t tomcat .
 ```

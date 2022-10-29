@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.65-jre11-openjdk-slim-bullseye
+ARG IMAGE_FROM=tomcat:9.0.68-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,7 +13,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=65
+ARG APP_VER_PATCH=68
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -27,12 +27,16 @@ ENV APP_VER=${APP_VER}
 #ENV APP_VER_PATCH=${APP_VER/*./}
 
 # components app versions
-## https://dev.mysql.com/downloads/connector/j/
+## https://jdbc.postgresql.org
+ARG PGSQL_JDBC_VERSION=42.5.0
+
+## https://dev.mysql.com/downloads/connector/j
 ARG MYSQL_JDBC_VERSION=8.0.31
 
 # https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-# https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_10.2.0.0_enu.tar.gz
-ARG MSSQL_JDBC_VERSION=10.2.1
+ARG MSSQL_JDBC_VERSION=11.2.0
+# find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
+ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/d/1/9/d194dc5c-4db6-4fb6-8ba2-219c93272b7b
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_JDBC_VERSION=11.0
@@ -42,7 +46,7 @@ ARG GLOWROOT_VERSION=0.13.6
 
 ## https://javaee.github.io/metro/download
 ## https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
-ARG METRO_VERSION=2.4.4
+ARG METRO_VERSION=2.4.8
 
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
@@ -76,16 +80,17 @@ ENV TINI_VERSION          0.19.0
 ENV DEBIAN_FRONTEND       noninteractive
 
 # app plugins enabled
+ENV APP_PLUGIN_PGSQL      1
 ENV APP_PLUGIN_MYSQL      1
-ENV APP_PLUGIN_MSSQL      0
-ENV APP_PLUGIN_AS400      0
+ENV APP_PLUGIN_MSSQL      1
+ENV APP_PLUGIN_AS400      1
 ENV APP_PLUGIN_GLOWROOT   1
 ENV APP_PLUGIN_METRO      1
-ENV APP_PLUGIN_JAXB       0
-ENV APP_PLUGIN_REDISSON   0
+ENV APP_PLUGIN_JAXB       1
+ENV APP_PLUGIN_REDISSON   1
 ENV APP_PLUGIN_JAVAMAIL   1
-ENV APP_PLUGIN_JAVAXMAIL_API 1
-ENV APP_PLUGIN_JAVAX_ACTIVATION 1
+ENV APP_PLUGIN_JAVAXMAIL_API      1
+ENV APP_PLUGIN_JAVAX_ACTIVATION   1
 ENV APP_PLUGIN_JAKARTA_ACTIVATION 1
 
 # generic app configuration variables
@@ -170,18 +175,31 @@ RUN set -xe && \
   \
   # include misc jars
   cd "${CATALINA_HOME}/lib" && \
+  \
+  # postgresql java connector
+  if [ $APP_PLUGIN_PGSQL = 1 ]; then \
+    curl -fSL --connect-timeout 10 "https://jdbc.postgresql.org/download/postgresql-${PGSQL_JDBC_VERSION}.jar" -o "${CATALINA_HOME}/lib/postgresql-${PGSQL_JDBC_VERSION}.jar" ; \
+  fi && \
+  \
   # mysql java connector
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VERSION}.jar" \
-  ;fi && \
+    if [ $MYSQL_JDBC_VERSION \> 8.0.30 ]; then \
+       curl -fSL --connect-timeout 10 "https://cdn.mysql.com/Downloads/Connector-J/mysql-connector-j-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-j-${MYSQL_JDBC_VERSION}.jar"; \
+     else \
+       curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VERSION}.jar"; \
+    fi; \
+  fi && \
+  \
   # mssql java connector
   if [ $APP_PLUGIN_MSSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://download.microsoft.com/download/4/d/5/4d5a79be-35f8-48d4-a984-473747362f99/sqljdbc_${MSSQL_JDBC_VERSION}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/lib/" "*/enu/mssql-jdbc-${MSSQL_JDBC_VERSION}.jre11.jar" \
+     curl -fSL --connect-timeout 10 "${MSSQL_JDBC_BASEURL}/sqljdbc_${MSSQL_JDBC_VERSION}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/lib/" "*/enu/mssql-jdbc-${MSSQL_JDBC_VERSION}.jre11.jar" \
   ;fi && \
+  \
   # jt400 - as400 java connector
   if [ $APP_PLUGIN_AS400 = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_JDBC_VERSION}/jt400-${AS400_JDBC_VERSION}.jar" -o "jt400-${AS400_JDBC_VERSION}.jar" \
-  ;fi &&\
+  ;fi && \
+  \
   # glowroot - java vm monitoring
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
@@ -189,6 +207,7 @@ RUN set -xe && \
      echo '{ "web": { "bindAddress": "0.0.0.0" } }' > "${CATALINA_HOME}/glowroot/admin.json" && \
      rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" \
   ;fi && \
+  \
   # metro - webservice toolkit
   if [ $APP_PLUGIN_METRO = 1 ]; then \
      for PACKAGE in \
@@ -204,34 +223,41 @@ RUN set -xe && \
      #unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
      #rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
   ;fi && \
+  \
   # jaxb - Java Architecture for XML Binding
   if [ $APP_PLUGIN_JAXB = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/${JAXB_VERSION}/jaxb-ri-${JAXB_VERSION}.zip" -o "/tmp/jaxb-ri-${JAXB_VERSION}.zip" && \
      unzip -j "/tmp/jaxb-ri-${JAXB_VERSION}.zip" */mod/*.jar -d "${CATALINA_HOME}/lib/" && \
      rm -f "/tmp/jaxb-ri-${JAXB_VERSION}.zip" \
   ;fi && \
+  \
   # redis session manager
   if [ $APP_PLUGIN_REDISSON = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VERSION}/redisson-all-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VERSION}.jar" && \
      curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VERSION_MAJOR}/${REDISSON_VERSION}/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" \
   ;fi && \
+  \
   # javamail
   if [ $APP_PLUGIN_JAVAMAIL = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VERSION}/javax.mail-${JAVAMAIL_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VERSION}.jar" \
   ;fi && \
+  \
   # javaxmail api
   if [ $APP_PLUGIN_JAVAXMAIL_API = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VERSION}/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" \
   ;fi && \
+  \
   # javax.activation
   if [ $APP_PLUGIN_JAVAX_ACTIVATION = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VERSION}/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" \
   ;fi && \
+  \
   # jakarta.activation
   if [ $APP_PLUGIN_JAKARTA_ACTIVATION = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VERSION}/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" \
   ;fi && \
   cd / && \
+  \
   # cleanup system
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
   rm -rf /var/lib/apt/lists/* /tmp/*
