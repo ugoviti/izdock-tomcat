@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.68-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.70-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,7 +13,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=68
+ARG APP_VER_PATCH=70
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -28,18 +28,18 @@ ENV APP_VER=${APP_VER}
 
 # components app versions
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VERSION=42.5.0
+ARG PGSQL_JDBC_VERSION=42.5.1
 
 ## https://dev.mysql.com/downloads/connector/j
 ARG MYSQL_JDBC_VERSION=8.0.31
 
 # https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VERSION=11.2.0
+ARG MSSQL_JDBC_VERSION=11.2.1
 # find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/d/1/9/d194dc5c-4db6-4fb6-8ba2-219c93272b7b
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VERSION=11.0
+ARG AS400_JDBC_VERSION=11.1
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VERSION=0.13.6
@@ -50,10 +50,10 @@ ARG METRO_VERSION=2.4.8
 
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
-ARG JAXB_VERSION=2.3.3
+ARG JAXB_VERSION=2.3.7
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.17.7
+ARG REDISSON_VERSION=3.19.0
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VERSION=1.6.2
