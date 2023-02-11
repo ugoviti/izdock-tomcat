@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.70-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.71-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,7 +13,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=70
+ARG APP_VER_PATCH=71
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -31,13 +31,12 @@ ENV APP_VER=${APP_VER}
 ARG PGSQL_JDBC_VERSION=42.5.1
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VERSION=8.0.31
+ARG MYSQL_JDBC_VERSION=8.0.32
 
 # https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VERSION=11.2.1
+ARG MSSQL_JDBC_VERSION=12.2.0
 # find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
-ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/d/1/9/d194dc5c-4db6-4fb6-8ba2-219c93272b7b
-
+ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/a/9/1/a91534b0-ed8c-4501-b491-e1dd0a20335a
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_JDBC_VERSION=11.1
 
