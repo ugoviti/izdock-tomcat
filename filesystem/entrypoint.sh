@@ -12,7 +12,6 @@
 : ${APP_VER_BUILD:=unknown}
 : ${APP_BUILD_COMMIT:=unknown}
 : ${APP_BUILD_DATE:=unknown}
-: ${APP_RELINK:=false}
 ## entrypoints default variables
 : ${APP_RUNAS:=false}
 : ${ENTRYPOINT_TINI:=false}

@@ -10,75 +10,76 @@ FROM ${IMAGE_FROM}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
-# default app args used during build step
-ARG APP_VER_MAJOR=9
-ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=73
-# full app version
-ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+### default app args used during build step
+#ARG APP_VER_MAJOR=
+#ARG APP_VER_MINOR=
+#ARG APP_VER_PATCH=
+
+### full app version
+#ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
+ARG APP_VER=9.0.73
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
-#ARG APP_VER=8.5.58
-#ENV APP_VER=${APP_VER}
 #ENV APP_VER_SHORT="${APP_VER%.*}"
-#ENV APP_VER_MAJOR=${APP_VER/.*/}
-#ENV APP_VER_MINOR=${APP_VER_SHORT/*./}
-#ENV APP_VER_PATCH=${APP_VER/*./}
+#ENV APP_VER_MAJOR="${APP_VER%%.*}"
+#ENV APP_VER_MINOR="${APP_VER_SHORT##*.}"
+#ENV APP_VER_PATCH="${APP_VER##*.}"
 
-# components app versions
+## components versions
+#ENV TOMCAT_VER_MAJOR  ${APP_VER_MAJOR}
+#ENV TOMCAT_VER_MINOR  ${APP_VER_MINOR}
+#ENV TOMCAT_VER_PATCH  ${APP_VER_PATCH}
+ENV TOMCAT_VER        ${APP_VER}
+#ENV TOMCAT_NATIVE_VER 1.2.19
+
+## components app versions
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VERSION=42.5.1
+ARG PGSQL_JDBC_VER=42.5.1
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VERSION=8.0.32
+ARG MYSQL_JDBC_VER=8.0.32
 
-# https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VERSION=12.2.0
-# find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
+## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
+ARG MSSQL_JDBC_VER=12.2.0
+## find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/a/9/1/a91534b0-ed8c-4501-b491-e1dd0a20335a
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VERSION=11.1
+ARG AS400_JDBC_VER=11.1
 
 ## https://github.com/glowroot/glowroot/releases
-ARG GLOWROOT_VERSION=0.13.6
+ARG GLOWROOT_VER=0.13.6
 
 ## https://javaee.github.io/metro/download
 ## https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
-ARG METRO_VERSION=2.4.8
+ARG METRO_VER=2.4.8
 
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
-ARG JAXB_VERSION=2.3.7
+ARG JAXB_VER=2.3.7
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VERSION=3.19.0
+ARG REDISSON_VER=3.19.0
 
 ## https://javaee.github.io/javamail/
-ARG JAVAMAIL_VERSION=1.6.2
+ARG JAVAMAIL_VER=1.6.2
 
 ## https://repo1.maven.org/maven2/javax/mail/javax.mail-api/
-ARG JAVAXMAIL_API_VERSION=1.6.2
+ARG JAVAXMAIL_API_VER=1.6.2
 
 ## https://repo1.maven.org/maven2/javax/activation/javax.activation-api
-ARG JAVAX_ACTIVATION_VERSION=1.2.0
+ARG JAVAX_ACTIVATION_VER=1.2.0
 
 ## https://github.com/eclipse-ee4j/jaf/releases
-ARG JAKARTA_ACTIVATION_VERSION=2.0.1
+ARG JAKARTA_ACTIVATION_VER=2.0.1
 
-# components versions
-ENV TOMCAT_VERSION_MAJOR  ${APP_VER_MAJOR}
-ENV TOMCAT_VERSION_MINOR  ${APP_VER_MINOR}
-ENV TOMCAT_VERSION_PATCH  ${APP_VER_PATCH}
-ENV TOMCAT_VERSION        ${APP_VER}
-#ENV TOMCAT_NATIVE_VERSION 1.2.19
+# https://github.com/krallin/tini/releases
+ENV TINI_VER          0.19.0
 
-ENV TINI_VERSION          0.19.0
-
-# debian specific
+## debian specific
 ENV DEBIAN_FRONTEND       noninteractive
 
-# app plugins enabled
+## app plugins enabled
 ENV APP_PLUGIN_PGSQL      1
 ENV APP_PLUGIN_MYSQL      1
 ENV APP_PLUGIN_MSSQL      1
@@ -101,6 +102,7 @@ ENV APP_DATA              ""
 ENV APP_LOGS              ""
 ENV APP_TEMP              ""
 ENV APP_WORK              ""
+ENV APP_SHARED            ""
 ENV APP_HTTP_PORT         8080
 ENV APP_AJP_PORT          8009
 ENV APP_SHUTDOWN_PORT     8005
@@ -124,13 +126,14 @@ ENV UMASK         "0002"
 WORKDIR ${CATALINA_HOME}
 
 ## install
-RUN echo "Building $APP_DESCRIPTION" && \
-  echo "TOMCAT_VERSION_MAJOR: ${TOMCAT_VERSION_MAJOR}" && \
-  echo "TOMCAT_VERSION_MINOR: ${TOMCAT_VERSION_MINOR}" && \
-  echo "TOMCAT_VERSION_PATCH: ${TOMCAT_VERSION_PATCH}" && \
-  echo "TOMCAT_VERSION      : ${TOMCAT_VERSION}"
-
 RUN set -xe && \
+  : "---------- START build TOMCAT ----------" && \
+  # define tomcat versions splitting TOMCAT_VER
+  TOMCAT_VER_SHORT="${TOMCAT_VER%.*}" && \
+  TOMCAT_VER_MAJOR="${TOMCAT_VER%%.*}" && \
+  TOMCAT_VER_MINOR="${TOMCAT_VER_SHORT##*.}" && \
+  TOMCAT_VER_PATCH="${TOMCAT_VER##*.}" && \
+  \
   apt-get update && apt-get upgrade -y && \
   apt-get install -y --no-install-recommends \
     bash \
@@ -152,14 +155,15 @@ RUN set -xe && \
     gnupg \
     netcat \
     curl \
+    mysql-client-core-8.0 \
     && \
   # install tini as init container
-  if [ $TOMCAT_VERSION \> 8.0.0 ]; then \
+  if [ ${TOMCAT_VER_MAJOR} \> 8 ]; then \
       apt-get install -y --no-install-recommends tini; \
     else \
-      curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini_$TINI_VERSION-amd64.deb -o tini_$TINI_VERSION-amd64.deb && \
-      dpkg -i tini_$TINI_VERSION-amd64.deb && \
-      rm -f tini_$TINI_VERSION-amd64.deb \
+      curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER-amd64.deb -o tini_$TINI_VER-amd64.deb && \
+      dpkg -i tini_$TINI_VER-amd64.deb && \
+      rm -f tini_$TINI_VER-amd64.deb \
    ;fi && \
   \
   # include misc jars
@@ -167,34 +171,34 @@ RUN set -xe && \
   \
   # postgresql java connector
   if [ $APP_PLUGIN_PGSQL = 1 ]; then \
-    curl -fSL --connect-timeout 10 "https://jdbc.postgresql.org/download/postgresql-${PGSQL_JDBC_VERSION}.jar" -o "${CATALINA_HOME}/lib/postgresql-${PGSQL_JDBC_VERSION}.jar" ; \
+    curl -fSL --connect-timeout 10 "https://jdbc.postgresql.org/download/postgresql-${PGSQL_JDBC_VER}.jar" -o "${CATALINA_HOME}/lib/postgresql-${PGSQL_JDBC_VER}.jar" ; \
   fi && \
   \
   # mysql java connector
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
-    if [ $MYSQL_JDBC_VERSION \> 8.0.30 ]; then \
-       curl -fSL --connect-timeout 10 "https://cdn.mysql.com/Downloads/Connector-J/mysql-connector-j-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-j-${MYSQL_JDBC_VERSION}.jar"; \
+    if [ $MYSQL_JDBC_VER \> 8.0.30 ]; then \
+       curl -fSL --connect-timeout 10 "https://cdn.mysql.com/Downloads/Connector-J/mysql-connector-j-${MYSQL_JDBC_VER}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-j-${MYSQL_JDBC_VER}.jar"; \
      else \
-       curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VERSION}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VERSION}.jar"; \
+       curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VER}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VER}.jar"; \
     fi; \
   fi && \
   \
   # mssql java connector
   if [ $APP_PLUGIN_MSSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "${MSSQL_JDBC_BASEURL}/sqljdbc_${MSSQL_JDBC_VERSION}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/lib/" "*/enu/mssql-jdbc-${MSSQL_JDBC_VERSION}.jre11.jar" \
+     curl -fSL --connect-timeout 10 "${MSSQL_JDBC_BASEURL}/sqljdbc_${MSSQL_JDBC_VER}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/lib/" "*/enu/mssql-jdbc-${MSSQL_JDBC_VER}.jre11.jar" \
   ;fi && \
   \
   # jt400 - as400 java connector
   if [ $APP_PLUGIN_AS400 = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_JDBC_VERSION}/jt400-${AS400_JDBC_VERSION}.jar" -o "jt400-${AS400_JDBC_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/net/sf/jt400/jt400/${AS400_JDBC_VER}/jt400-${AS400_JDBC_VER}.jar" -o "jt400-${AS400_JDBC_VER}.jar" \
   ;fi && \
   \
   # glowroot - java vm monitoring
   if [ $APP_PLUGIN_GLOWROOT = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VERSION}/glowroot-${GLOWROOT_VERSION}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" && \
-     unzip "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" -d "${CATALINA_HOME}/" && \
+     curl -fSL --connect-timeout 10 "https://github.com/glowroot/glowroot/releases/download/v${GLOWROOT_VER}/glowroot-${GLOWROOT_VER}-dist.zip" -o "/tmp/glowroot-${GLOWROOT_VER}-dist.zip" && \
+     unzip "/tmp/glowroot-${GLOWROOT_VER}-dist.zip" -d "${CATALINA_HOME}/" && \
      echo '{ "web": { "bindAddress": "0.0.0.0" } }' > "${CATALINA_HOME}/glowroot/admin.json" && \
-     rm -f "/tmp/glowroot-${GLOWROOT_VERSION}-dist.zip" \
+     rm -f "/tmp/glowroot-${GLOWROOT_VER}-dist.zip" \
   ;fi && \
   \
   # metro - webservice toolkit
@@ -206,44 +210,44 @@ RUN set -xe && \
      webservices-rt \
      webservices-tools \
      ; do \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/glassfish/metro/${PACKAGE}/${METRO_VERSION}/${PACKAGE}-${METRO_VERSION}.jar" -o "${CATALINA_HOME}/lib/${PACKAGE}-${METRO_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/glassfish/metro/${PACKAGE}/${METRO_VER}/${PACKAGE}-${METRO_VER}.jar" -o "${CATALINA_HOME}/lib/${PACKAGE}-${METRO_VER}.jar" \
      ;done \
-     #curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VERSION}/metro-standalone-${METRO_VERSION}.zip" -o "/tmp/metro-standalone-${METRO_VERSION}.zip" && \
-     #unzip -j "/tmp/metro-standalone-${METRO_VERSION}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
-     #rm -f "/tmp/metro-standalone-${METRO_VERSION}.zip" \
+     #curl -fSL --connect-timeout 10 "https://maven.java.net/content/repositories/releases//org/glassfish/metro/metro-standalone/${METRO_VER}/metro-standalone-${METRO_VER}.zip" -o "/tmp/metro-standalone-${METRO_VER}.zip" && \
+     #unzip -j "/tmp/metro-standalone-${METRO_VER}.zip" */lib/*.jar -d "${CATALINA_HOME}/lib/" && \
+     #rm -f "/tmp/metro-standalone-${METRO_VER}.zip" \
   ;fi && \
   \
   # jaxb - Java Architecture for XML Binding
   if [ $APP_PLUGIN_JAXB = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/${JAXB_VERSION}/jaxb-ri-${JAXB_VERSION}.zip" -o "/tmp/jaxb-ri-${JAXB_VERSION}.zip" && \
-     unzip -j "/tmp/jaxb-ri-${JAXB_VERSION}.zip" */mod/*.jar -d "${CATALINA_HOME}/lib/" && \
-     rm -f "/tmp/jaxb-ri-${JAXB_VERSION}.zip" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/${JAXB_VER}/jaxb-ri-${JAXB_VER}.zip" -o "/tmp/jaxb-ri-${JAXB_VER}.zip" && \
+     unzip -j "/tmp/jaxb-ri-${JAXB_VER}.zip" */mod/*.jar -d "${CATALINA_HOME}/lib/" && \
+     rm -f "/tmp/jaxb-ri-${JAXB_VER}.zip" \
   ;fi && \
   \
   # redis session manager
   if [ $APP_PLUGIN_REDISSON = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VERSION}/redisson-all-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VERSION}.jar" && \
-     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VERSION_MAJOR}/${REDISSON_VERSION}/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VERSION_MAJOR}-${REDISSON_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VER}/redisson-all-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VER}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VER_MAJOR}/${REDISSON_VER}/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" \
   ;fi && \
   \
   # javamail
   if [ $APP_PLUGIN_JAVAMAIL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VERSION}/javax.mail-${JAVAMAIL_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/mail/javax.mail/${JAVAMAIL_VER}/javax.mail-${JAVAMAIL_VER}.jar" -o "${CATALINA_HOME}/lib/javax.mail-${JAVAMAIL_VER}.jar" \
   ;fi && \
   \
   # javaxmail api
   if [ $APP_PLUGIN_JAVAXMAIL_API = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VERSION}/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/mail/javax.mail-api/${JAVAXMAIL_API_VER}/javax.mail-api-${JAVAXMAIL_API_VER}.jar" -o "${CATALINA_HOME}/lib/javax.mail-api-${JAVAXMAIL_API_VER}.jar" \
   ;fi && \
   \
   # javax.activation
   if [ $APP_PLUGIN_JAVAX_ACTIVATION = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VERSION}/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/javax/activation/javax.activation-api/${JAVAX_ACTIVATION_VER}/javax.activation-api-${JAVAX_ACTIVATION_VER}.jar" -o "${CATALINA_HOME}/lib/javax.activation-api-${JAVAX_ACTIVATION_VER}.jar" \
   ;fi && \
   \
   # jakarta.activation
   if [ $APP_PLUGIN_JAKARTA_ACTIVATION = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VERSION}/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VERSION}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VER}/jakarta.activation-${JAKARTA_ACTIVATION_VER}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VER}.jar" \
   ;fi && \
   cd / && \
   \
@@ -252,7 +256,7 @@ RUN set -xe && \
   rm -rf /var/lib/apt/lists/* /tmp/*
 
 # verify Tomcat Native is working properly
-RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
+RUN if [ ${TOMCAT_VER_MAJOR} -ge 8 ]; then \
         set -e && \
         nativeLines="$(catalina.sh configtest 2>&1)" && \
         nativeLines="$(echo "$nativeLines" | grep 'Apache Tomcat Native')" && \
@@ -268,7 +272,7 @@ RUN set -xe && \
   rm -f  ${CATALINA_HOME}/bin/*.bat && \
   rm -rf ${CATALINA_HOME}/webapps.dist/docs && \
   rm -rf ${CATALINA_HOME}/webapps.dist/examples && \
-  cp -a  ${CATALINA_HOME}/webapps.dist/ ${CATALINA_HOME}/webapps/ && \
+  cp -a  ${CATALINA_HOME}/webapps.dist/* ${CATALINA_HOME}/webapps/
 
 # create extra directories
 RUN set -xe && \
@@ -297,8 +301,8 @@ RUN set -xe && \
   #sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties && \
   # test: fix infinite dns cache jvm
   #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security
-  
-  
+
+
 # install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
 

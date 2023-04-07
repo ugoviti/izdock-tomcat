@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # enable script debug
-set -x
+#set -x
 
 ## entrypoint env management
 : ${APP_NAME:=""}
@@ -14,6 +14,7 @@ set -x
 
 # override default data directory used by container apps (used by stateful apps)
 : ${APP_DATA:=""}
+: ${APP_SHARED:=""}
 
 # default original directory and config files paths array used by container app
 declare -A appDataDirs=(
@@ -69,7 +70,7 @@ manageDataDir() {
     done
 
     # make initialized only on sucessfull directory symlinking
-    [ $RETVAL = 0 ] && touch "${appDataDirs[APP_DATA]}/.initialized"
+    [ $RETVAL = 0 ] && makeInitialized "${appDataDirs[APP_DATA]}"
   else
       echo "==> Skipping Initialization Hooks: Detected $APP_NAME data files already initialized into '${appDataDirs[APP_DATA]}'"
   fi
@@ -78,8 +79,8 @@ manageDataDir() {
 
 ## entrypoint functions
 runHooks() {
-  [ ! -z "${APP_DATA}" ]   && manageDataDir APP_DATA   appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_DATA... the configurations will be lost on container restart"
-  [ ! -z "${APP_SHARED}" ] && manageDataDir APP_SHARED appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_SHARED... the configurations will be lost on container restart"
+  [ ! -z "${APP_DATA}" ]   && manageDataDir APP_DATA   appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_DATA... all data will be lost on container restart"
+  [ ! -z "${APP_SHARED}" ] && manageDataDir APP_SHARED appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_SHARED... all data will be lost on container restart"
 
   # stop debugging
   #exit
@@ -95,7 +96,7 @@ runHooks() {
 
 # entrypoint hooks
 tomcatConf() {
-  echo "=> Running Configuration Hooks: Executing $APP_NAME configuration hooks 'onetime'..."
+  echo "==> Running Configuration Hooks:"
   PASSWORD_TYPE=$( [ ${APP_ADMIN_PASSWORD} ] && echo "preset" || echo "random" )
 
   APP_ADMIN_USERNAME="${APP_ADMIN_USERNAME:-manager}"
@@ -104,7 +105,7 @@ tomcatConf() {
   # use the env variables to make initial configuration changes before starting for the first time
   APP_REMOTE_MANAGEMENT="${APP_REMOTE_MANAGEMENT:-0}"
 
-  echo "--> setting default system umask to $UMASK "
+  echo "---> setting default system umask to $UMASK "
   # set default umask
   export UMASK
   umask $UMASK
@@ -112,7 +113,7 @@ tomcatConf() {
 
   # 1. Catalina/localhost/manager.xml (allow remote management)
   if [ $APP_REMOTE_MANAGEMENT = 1 ]; then
-    echo "--> configuring ${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
+    echo "---> configuring ${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
     mkdir -p "${appDataDirs[APP_CONF]}/Catalina/localhost"
     echo '<Context privileged="true" antiResourceLocking="false" docBase="${catalina.home}/webapps/manager">
     <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
@@ -122,7 +123,7 @@ tomcatConf() {
   fi
 
   # 2. context.xml
-  echo "--> configuring ${appDataDirs[APP_CONF]}/context.xml"
+  echo "---> configuring ${appDataDirs[APP_CONF]}/context.xml"
   echo '<?xml version="1.0" encoding="UTF-8"?>
   <Context antiResourceLocking="false" privileged="true" >
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
@@ -130,7 +131,7 @@ tomcatConf() {
   </Context>' > "${appDataDirs[APP_CONF]}/context.xml"
 
   # 3. server.xml (set resource limits)
-  echo "==> configuring ${appDataDirs[APP_CONF]}/server.xml"
+  echo "---> configuring ${appDataDirs[APP_CONF]}/server.xml"
   MATCH='<Connector port="8080" protocol="HTTP\/1.1"'
   sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
   sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
@@ -141,9 +142,8 @@ tomcatConf() {
 
 
   # 4. tomcat-users.xml create web admin user
-  echo "==> creating $APP_ADMIN_USERNAME user with a ${PASSWORD_TYPE} password in ${APP}"
-  echo "==> configuring ${appDataDirs[APP_CONF]}/tomcat-users.xml"
-
+  echo "---> configuring ${appDataDirs[APP_CONF]}/tomcat-users.xml"
+  echo "----> creating '$APP_ADMIN_USERNAME' user with a '${PASSWORD_TYPE}' password"
   echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
   <tomcat-users>
     <role rolename=\"manager\"/>
@@ -162,18 +162,20 @@ tomcatConf() {
     ln -s "${appDataDirs[APP_SHARED]}/conf/context.xml" "${appDataDirs[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
   fi
 
-  echo "=> Done!"
+  echo "=> All Done!"
 
   if [ "$PASSWORD_TYPE" = "random" ]; then
+    echo
     echo "========================================================================"
-    echo "You can now connect to this $APP_NAME using:"
-    echo "  username: ${APP_ADMIN_USERNAME}"
-    echo "  password: ${APP_ADMIN_PASSWORD}"
+    echo "You can now connect to this $APP_NAME deploy using:"
+    echo "> username: ${APP_ADMIN_USERNAME}"
+    echo "> password: ${APP_ADMIN_PASSWORD}"
     echo "========================================================================"
+    echo
   fi
 
   # save the configuration status for later usage with persistent volumes
-  touch "${appDataDirs[APP_CONF]}/.initialized"
+  makeInitialized "${appDataDirs[APP_CONF]}"
 }
 
 
@@ -185,6 +187,12 @@ print_fullname() { echo ${@##*/}; }
 print_name() { print_fullname $(echo ${@%.*}); }
 print_ext() { echo ${@##*.}; }
 dirEmpty() { [ -z "$(ls -A "$1/")" ]; } # return true if specified directory is empty, false if contains files
+
+makeInitialized() {
+  # ISO 8601:2004 time format
+  # https://en.wikipedia.org/wiki/ISO_8601
+  echo "$(date +"%Y-%m-%dT%H:%M:%S%z")" > "$1/.initialized"
+}
 
 # if required move default confgurations to custom directory
 symlinkDir() {
