@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.71-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.73-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -13,7 +13,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 # default app args used during build step
 ARG APP_VER_MAJOR=9
 ARG APP_VER_MINOR=0
-ARG APP_VER_PATCH=71
+ARG APP_VER_PATCH=73
 # full app version
 ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ENV APP_VER=${APP_VER}
@@ -111,16 +111,6 @@ ENV APP_USR               "tomcat"
 ENV APP_GRP               "tomcat"
 ENV APP_ADMIN_USERNAME    "manager"
 ENV APP_ADMIN_PASSWORD    ""
-
-# default app configuration variables
-ENV APP_RELINK            1
-ENV APP_RECONFIG          1
-ENV APP_CONF_DEFAULT      "${APP_HOME}/conf"
-ENV APP_DATA_DEFAULT      "${APP_HOME}/webapps"
-ENV APP_LOGS_DEFAULT      "${APP_HOME}/logs"
-ENV APP_TEMP_DEFAULT      "${APP_HOME}/temp"
-ENV APP_WORK_DEFAULT      "${APP_HOME}/work"
-ENV APP_SHARED_DEFAULT    "${APP_HOME}/shared"
 
 # specific app configuration variables
 ENV JAVA_OPTS     "-Djava.awt.headless=true -Dfile.encoding=UTF-8"
@@ -261,7 +251,6 @@ RUN set -xe && \
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
   rm -rf /var/lib/apt/lists/* /tmp/*
 
-
 # verify Tomcat Native is working properly
 RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
         set -e && \
@@ -274,18 +263,19 @@ RUN if [ $TOMCAT_VERSION_MAJOR -ge 8 ]; then \
         ;fi \
     ;fi
 
-# remove unnecessary default components
+# remove unnecessary default components and copy webapps.dist to webapps
 RUN set -xe && \
   rm -f  ${CATALINA_HOME}/bin/*.bat && \
   rm -rf ${CATALINA_HOME}/webapps.dist/docs && \
-  rm -rf ${CATALINA_HOME}/webapps.dist/examples
+  rm -rf ${CATALINA_HOME}/webapps.dist/examples && \
+  cp -a  ${CATALINA_HOME}/webapps.dist/ ${CATALINA_HOME}/webapps/ && \
 
-# create shared structure and conf/Catalina/localhost
+# create extra directories
 RUN set -xe && \
-  mkdir -p "${APP_SHARED_DEFAULT}/classes" && \
-  mkdir -p "${APP_SHARED_DEFAULT}/lib" && \
-  mkdir -p "${APP_SHARED_DEFAULT}/fonts" && \
-  mkdir -p "${APP_SHARED_DEFAULT}/conf" && \
+  mkdir -p "${CATALINA_HOME}/shared/classes" && \
+  mkdir -p "${CATALINA_HOME}/shared/lib" && \
+  mkdir -p "${CATALINA_HOME}/shared/fonts" && \
+  mkdir -p "${CATALINA_HOME}/shared/conf" && \
   mkdir -p "${CATALINA_HOME}/conf/Catalina/localhost"
 
 # pre entrypoint management
@@ -294,7 +284,6 @@ RUN set -xe && \
   groupadd -g "${APP_GID}" "${APP_GRP}" && \
   useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP_DESCRIPTION" -g "${APP_GRP}" "${APP_USR}" && \
   chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ && \
-  chmod 770 "${APP_SHARED_DEFAULT}" && \
   # custom tomcat path compatibility
   ln -s "${CATALINA_HOME}" /opt/tomcat
 
@@ -302,7 +291,7 @@ RUN set -xe && \
 RUN set -xe && \
   # catalina.properties
   sed 's/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\\nwebservices-*.jar,\\/' -i "${CATALINA_HOME}/conf/catalina.properties" && \
-  # disable ssl engine
+  # disable ssl engine by default
   sed 's/SSLEngine="on"/SSLEngine="off"/g' -i "${CATALINA_HOME}/conf/server.xml"
   # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper (not working since tomcat:8.5.42-jdk8-openjdk-slim)
   #sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties && \
@@ -318,12 +307,6 @@ EXPOSE 8080/tcp 8009/tcp
 
 # define volumes
 VOLUME ${APP_HOME}
-#VOLUME ${APP_CONF_DEFAULT}
-#VOLUME ${APP_DATA_DEFAULT}
-#VOLUME ${APP_LOGS_DEFAULT}
-#VOLUME ${APP_TEMP_DEFAULT}
-#VOLUME ${APP_WORK_DEFAULT}
-#VOLUME ${APP_SHARED_DEFAULT}
 
 # turn on tomcat user
 #USER ${APP_USR}
