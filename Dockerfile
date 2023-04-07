@@ -74,7 +74,7 @@ ARG JAVAX_ACTIVATION_VER=1.2.0
 ARG JAKARTA_ACTIVATION_VER=2.0.1
 
 # https://github.com/krallin/tini/releases
-ENV TINI_VER          0.19.0
+ENV TINI_VER 0.19.0
 
 ## debian specific
 ENV DEBIAN_FRONTEND       noninteractive
@@ -267,32 +267,32 @@ RUN if [ ${TOMCAT_VER_MAJOR} -ge 8 ]; then \
         ;fi \
     ;fi
 
-# remove unnecessary default components and copy webapps.dist to webapps
+
+### pre entrypoint management
 RUN set -xe && \
+  ## remove unnecessary default components and copy webapps.dist to webapps
   rm -f  ${CATALINA_HOME}/bin/*.bat && \
   rm -rf ${CATALINA_HOME}/webapps.dist/docs && \
   rm -rf ${CATALINA_HOME}/webapps.dist/examples && \
-  cp -a  ${CATALINA_HOME}/webapps.dist/* ${CATALINA_HOME}/webapps/
-
-# create extra directories
-RUN set -xe && \
+  cp -a  ${CATALINA_HOME}/webapps.dist/* ${CATALINA_HOME}/webapps/ && \
+  cp -a  ${CATALINA_HOME}/conf ${CATALINA_HOME}/conf.dist && \
+  \
+  # create extra directories
   mkdir -p "${CATALINA_HOME}/shared/classes" && \
   mkdir -p "${CATALINA_HOME}/shared/lib" && \
   mkdir -p "${CATALINA_HOME}/shared/fonts" && \
   mkdir -p "${CATALINA_HOME}/shared/conf" && \
-  mkdir -p "${CATALINA_HOME}/conf/Catalina/localhost"
-
-# pre entrypoint management
-RUN set -xe && \
+  mkdir -p "${CATALINA_HOME}/conf/Catalina/localhost" && \
+  \
+  ## create system users and set default permissions
   umask $UMASK && \
   groupadd -g "${APP_GID}" "${APP_GRP}" && \
   useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP_DESCRIPTION" -g "${APP_GRP}" "${APP_USR}" && \
   chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ && \
-  # custom tomcat path compatibility
-  ln -s "${CATALINA_HOME}" /opt/tomcat
-
-# remove unused files
-RUN set -xe && \
+  ## custom tomcat path compatibility
+  ln -s "${CATALINA_HOME}" /opt/tomcat && \
+  \
+  ## remove unused files
   # catalina.properties
   sed 's/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\\nwebservices-*.jar,\\/' -i "${CATALINA_HOME}/conf/catalina.properties" && \
   # disable ssl engine by default
@@ -303,22 +303,22 @@ RUN set -xe && \
   #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security
 
 
-# install gcsfuse
+## install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
 
-# exposed ports
+## exposed ports
 EXPOSE 8080/tcp 8009/tcp
 
-# define volumes
+## define volumes
 VOLUME ${APP_HOME}
 
-# turn on tomcat user
+## turn on tomcat user
 #USER ${APP_USR}
 
-# add files to container
+## add files to container
 ADD Dockerfile filesystem README.md /
 
-# container pre-entrypoint variables
+## container pre-entrypoint variables
 ENV APP_RUNAS          "true"
 ENV MULTISERVICE       "false"
 ENV ENTRYPOINT_TINI    "true"
@@ -329,11 +329,11 @@ ARG APP_VER_BUILD
 ARG APP_BUILD_COMMIT
 ARG APP_BUILD_DATE
 
-# define other build variables
+## define other build variables
 ENV APP_VER_BUILD    "${APP_VER_BUILD}"
 ENV APP_BUILD_COMMIT "${APP_BUILD_COMMIT}"
 ENV APP_BUILD_DATE   "${APP_BUILD_DATE}"
 
-# start the container process
+## start the entrypoint process
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["catalina.sh run"]

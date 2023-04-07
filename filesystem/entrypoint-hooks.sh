@@ -111,26 +111,35 @@ tomcatConf() {
   umask $UMASK
   sed "s/^UMASK.*/UMASK $UMASK/" -i /etc/login.defs
 
-  # 1. Catalina/localhost/manager.xml (allow remote management)
+
   if [ $APP_REMOTE_MANAGEMENT = 1 ]; then
     echo "---> configuring ${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
     mkdir -p "${appDataDirs[APP_CONF]}/Catalina/localhost"
-    echo '<Context privileged="true" antiResourceLocking="false" docBase="${catalina.home}/webapps/manager">
-    <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
-    </Context>' > "${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
 
-    echo '<Context antiResourceLocking="false" privileged="true" />' > "${appDataDirs[APP_DATA]}/manager/META-INF/context.xml"
+    # 1. Catalina/localhost/manager.xml (allow remote management)
+    cat <<EOF > "${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
+<Context privileged="true" antiResourceLocking="false" docBase="\${catalina.home}/webapps/manager">
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
+</Context>
+EOF
+
+    # 2. "webapps/manager/META-INF/context.xml" (enable tomcat manager)
+    cat <<EOF > "${appDataDirs[APP_DATA]}/manager/META-INF/context.xml"
+<Context antiResourceLocking="false" privileged="true" />
+EOF
   fi
 
-  # 2. context.xml
+  # 3. context.xml
   echo "---> configuring ${appDataDirs[APP_CONF]}/context.xml"
-  echo '<?xml version="1.0" encoding="UTF-8"?>
+  cat <<EOF > "${appDataDirs[APP_CONF]}/context.xml"
+<?xml version="1.0" encoding="UTF-8"?>
   <Context antiResourceLocking="false" privileged="true" >
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
-    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
-  </Context>' > "${appDataDirs[APP_CONF]}/context.xml"
+    <WatchedResource>\${catalina.base}/conf/web.xml</WatchedResource>
+  </Context>
+EOF
 
-  # 3. server.xml (set resource limits)
+  # 4. server.xml (set resource limits)
   echo "---> configuring ${appDataDirs[APP_CONF]}/server.xml"
   MATCH='<Connector port="8080" protocol="HTTP\/1.1"'
   sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
@@ -141,20 +150,27 @@ tomcatConf() {
   sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
 
 
-  # 4. tomcat-users.xml create web admin user
+  # 5. tomcat-users.xml create web admin user
   echo "---> configuring ${appDataDirs[APP_CONF]}/tomcat-users.xml"
   echo "----> creating '$APP_ADMIN_USERNAME' user with a '${PASSWORD_TYPE}' password"
-  echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-  <tomcat-users>
-    <role rolename=\"manager\"/>
-    <role rolename=\"manager-gui\"/>
-    <role rolename=\"manager-script\"/>
-    <role rolename=\"manager-jmx\"/>
-    <role rolename=\"admin\"/>
-    <role rolename=\"admin-gui\"/>
-    <role rolename=\"admin-script\"/>
-    <user username=\"$APP_ADMIN_USERNAME\" password=\"$APP_ADMIN_PASSWORD\" roles=\"manager,manager-gui,manager-script,manager-jmx,admin,admin-gui,admin-script\"/>
-  </tomcat-users>" > "${appDataDirs[APP_CONF]}/tomcat-users.xml"
+  cat <<EOF > "${appDataDirs[APP_CONF]}/tomcat-users.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+              version="1.0">
+  <role rolename="manager"/>
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="admin"/>
+  <role rolename="admin-gui"/>
+  <role rolename="admin-script"/>
+  <user username="$APP_ADMIN_USERNAME" password="$APP_ADMIN_PASSWORD" roles="manager,manager-gui,manager-script,manager-jmx,admin,admin-gui,admin-script"/>
+</tomcat-users>
+EOF
+  # enanche security
+  chmod o-rwx "${appDataDirs[APP_CONF]}/tomcat-users.xml"
 
   # link ${appDataDirs[APP_HOME]}/conf/[enginename]/[hostname]/context.xml to ${appDataDirs[APP_SHARED]}/conf/context.xml if exist
   if [ -e "${appDataDirs[APP_SHARED]}/conf/context.xml" ]; then
@@ -187,12 +203,8 @@ print_fullname() { echo ${@##*/}; }
 print_name() { print_fullname $(echo ${@%.*}); }
 print_ext() { echo ${@##*.}; }
 dirEmpty() { [ -z "$(ls -A "$1/")" ]; } # return true if specified directory is empty, false if contains files
-
-makeInitialized() {
-  # ISO 8601:2004 time format
-  # https://en.wikipedia.org/wiki/ISO_8601
-  echo "$(date +"%Y-%m-%dT%H:%M:%S%z")" > "$1/.initialized"
-}
+# ISO 8601:2004 extended time format: https://en.wikipedia.org/wiki/ISO_8601
+makeInitialized() { echo "$(date +"%Y-%m-%dT%H:%M:%S%:z")" > "$1/.initialized"; }
 
 # if required move default confgurations to custom directory
 symlinkDir() {

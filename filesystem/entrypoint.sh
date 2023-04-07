@@ -5,7 +5,7 @@
 
 #set -x
 
-## entrypoint env management
+## entrypoint env management failbak if not defined upstream into Dockerfile
 : ${APP_NAME:=unknown}}
 : ${APP_DESCRIPTION:=unknown}}
 : ${APP_VER:=latest}

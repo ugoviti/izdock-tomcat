@@ -2,9 +2,9 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
--	`9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest`
--	`8.5.X-BUILD`, `8.5.X`, `8.5`, `8`
--	`7.0.X-BUILD`, `7.0.X`, `7.0`, `7`
+- `9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest`
+- `8.5.X-BUILD`, `8.5.X`, `8.5`, `8`
+- `7.0.X-BUILD`, `7.0.X`, `7.0`, `7`
 
 Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
 
@@ -75,18 +75,6 @@ ENV APP_USR               "tomcat"
 ENV APP_GRP               "tomcat"
 ENV APP_ADMIN_USERNAME    "manager"
 ENV APP_ADMIN_PASSWORD    ""
-```
-
-## default app configuration variables
-```
-ENV APP_RELINK            1
-ENV APP_RECONFIG          1
-ENV APP_CONF_DEFAULT      "${APP_HOME}/conf"
-ENV APP_DATA_DEFAULT      "${APP_HOME}/webapps"
-ENV APP_LOGS_DEFAULT      "${APP_HOME}/logs"
-ENV APP_TEMP_DEFAULT      "${APP_HOME}/temp"
-ENV APP_WORK_DEFAULT      "${APP_HOME}/work"
-ENV APP_SHARED_DEFAULT    "${APP_HOME}/shared"
 ```
 
 ## specific app configuration variables
