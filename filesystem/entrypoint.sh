@@ -5,7 +5,7 @@
 
 #set -x
 
-## entrypoint env management failbak if not defined upstream into Dockerfile
+## entrypoint env management failback if not defined upstream into Dockerfile
 : ${APP_NAME:=unknown}}
 : ${APP_DESCRIPTION:=unknown}}
 : ${APP_VER:=latest}
@@ -22,12 +22,10 @@ appHooks() {
   
   echo "=> Starting container $APP_DESCRIPTION -> $APP_NAME:$APP_VER (build:${APP_VER_BUILD} commit:${APP_BUILD_COMMIT} date:${APP_BUILD_DATE})"
   echo "==============================================================================="
-  
   if [ -e "/entrypoint-hooks.sh" ]; then
     echo "=> Executing $APP_NAME hooks:"
     . /entrypoint-hooks.sh
   fi
-
   echo "-------------------------------------------------------------------------------"
 }
 

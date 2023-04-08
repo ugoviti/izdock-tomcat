@@ -43,15 +43,26 @@ Apache Tomcat software powers numerous large-scale, mission-critical web applica
 You can test it by visiting http://container-ip:8080 in a browser
 
 If you need access outside the host, on port 8888:
-```docker run -it --rm --name tomcat -p 8888:8080 tomcat```
+```
+docker run -it --rm --name tomcat -p 8888:8080 tomcat
+```
 
 You can then go to http://localhost:8888 or http://host-ip:8888 in a browser.
 
-Ovverride Config Directory:
-```docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=adm.tomcat -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_DATA=/data -v /tmp/tomcat:/data --name tomcat izdock/tomcat```
+Persistent data and shared directory:
+```
+docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=adm.tomcat -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_DATA=/data/tomcat/webapps -e APP_SHARED=/data/tomcat/shared -v /tmp/tomcat:/data --name tomcat izdock/tomcat
+```
+
+Other examples:
+```
+docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=adm.tomcat -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_DATA=/data/tomcat/webapps -e APP_SHARED=/data/tomcat/shared -v /tmp/tomcat:/data --name tomcat izdock/tomcat
+```
 
 More complex example:
-```docker run -it --rm -p 8080:8080 -p 4000:4000  --name tomcat9 -e APP_ADMIN_USERNAME=tomcatadmin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e CATALINA_OPTS="-server -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:MaxRAMPercentage=75.0 -XX:MinHeapFreeRatio=25 -XX:MaxHeapFreeRatio=50 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:NewRatio=3 -XX:SurvivorRatio=6 -XX:ReservedCodeCacheSize=320M -XX:+UseCodeCacheFlushing" -e JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Duser.timezone=Europe/Rome -Duser.language=it -Duser.region=IT -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345 -XX:-HeapDumpOnOutOfMemoryError -javaagent:/usr/local/tomcat/glowroot/glowroot.jar" izdock/tomcat:9.0.37```
+```
+docker run -it --rm -p 8080:8080 -p 4000:4000  --name tomcat9 -e APP_ADMIN_USERNAME=tomcatadmin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e CATALINA_OPTS="-server -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:MaxRAMPercentage=75.0 -XX:MinHeapFreeRatio=25 -XX:MaxHeapFreeRatio=50 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:NewRatio=3 -XX:SurvivorRatio=6 -XX:ReservedCodeCacheSize=320M -XX:+UseCodeCacheFlushing" -e JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Duser.timezone=Europe/Rome -Duser.language=it -Duser.region=IT -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345 -XX:-HeapDumpOnOutOfMemoryError -javaagent:/usr/local/tomcat/glowroot/glowroot.jar" izdock/tomcat:9.0.37
+```
 
 # Environment variables
 
@@ -99,7 +110,7 @@ docker build -t tomcat .
 
 Or overriding some options:
 ```
-docker build --rm=true --pull=true --build-arg IMAGE_FROM=tomcat:10.1.4-jdk17-temurin-jammy --build-arg APP_VER_MAJOR=10 --build-arg APP_VER_MINOR=1 --build-arg APP_VER_PATCH=4 -f Dockerfile -t izdock/tomcat .
+docker build --rm=true --pull=true --build-arg IMAGE_FROM=tomcat:10.1.4-jdk17-temurin-jammy --build-arg APP_VER=10.1.4 -f Dockerfile -t izdock/tomcat .
 ```
 
 # Quick reference

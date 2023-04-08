@@ -12,12 +12,18 @@
 : ${APP_RECONFIG:=0}
 : ${UMASK:=0002} # (**0002**) default umask when creating new files
 
-# override default data directory used by container apps (used by stateful apps)
+# override default data directory used by this apps (used for stateful and persistent data)
 : ${APP_DATA:=""}
 : ${APP_SHARED:=""}
 
-# default original directory and config files paths array used by container app
-declare -A appDataDirs=(
+# array of custom data directory
+declare -A appDataDirsCustom=(
+  [APP_DATA]="${APP_DATA}"
+  [APP_SHARED]="${APP_SHARED}"
+)
+
+# array of default default data directory paths used by this app
+declare -A appDataDirsDefault=(
   [APP_HOME]="/usr/local/tomcat"
   [APP_CONF]="/usr/local/tomcat/conf"
   [APP_DATA]="/usr/local/tomcat/webapps"
@@ -35,61 +41,64 @@ ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 echo "$TZ" > /etc/timezone
 
 # input: arg1 arg2 arg3
-# arg1: <VARIABLE_NAME> define the variable name containing base path for persistent storage
-# arg2: <VARIABLE_NAME> define the array name containing all app directory paths
+# arg1: <ARRAY_NAME> define the array name containing all custom directory paths
+# arg2: <ARRAY_NAME> define the array name containing all default directory paths
 # arg3: <yes/no> yes = create the Parents full path of default path using the persistent data path as basedir. no or no value = use the persistent data path directly as final data destination
 manageDataDir() {
-  # import custom dir variable name
-  eval dirCustom="\$$1"
-  shift
-
-  # import original dir array name (dirsOriginal is an Associative Array)
+  # arg1: import default dir array name (dirsDefault is an Associative Array)
   # clone the source array into a new temporary array
-  eval dirsOriginalIndexs=\${!$1[*]}
-  declare -A dirsOriginal
-  for i in $dirsOriginalIndexs; do
-    eval dirsOriginal[$i]=\${$1 [$i]}
+  dirsDefaultArray="$1"
+  eval dirsDefaultIndexs=\${!$1[*]}
+  declare -A dirsDefault
+  for i in $dirsDefaultIndexs; do
+    eval dirsDefault[$i]=\${$1[$i]}
   done
-  unset dirsOriginalIndexs
   shift
 
-  # define if the custom dir must contain parents full path of original dir
+  # arg2: import custom dir variable name
+  dirsCustomArray="$1"
+  eval dirsCustomIndexs=\${!$1[*]}
+  declare -A dirsCustom
+  for i in $dirsCustomIndexs; do
+    eval dirsCustom[$i]=\${$1[$i]}
+  done
+  shift
+
+  # arg3: define if the custom dir must contain parents full path of default dir
   eval makeParents="\$$1"
   shift
 
-  if [ ! -f "${dirCustom}/.initialized" ]; then
-    echo "==> Persistent storage path detected... relocating and reconfiguring system data and configuration files using basedir: '${appDataDirCustom}'"
-
-    # link to custom data directory if required
-    local n=1 ; local t=$(echo ${#dirsOriginal[@]})
-    for dirOriginalStep in ${dirsOriginal[@]}; do
-      [[ ! -z "${makeParents}" && "${makeParents}" = "yes" ]] && dirCustomStep="${dirCustom}${dirOriginalStep}" || dirCustomStep="${dirCustom}"
-      symlinkDir "${dirOriginalStep}" "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
-      [[ ! -z "$RETVAL" && $RETVAL != 1 ]] && RETVAL=$?
-      let n+=1
-    done
-
-    # make initialized only on sucessfull directory symlinking
-    [ $RETVAL = 0 ] && makeInitialized "${appDataDirs[APP_DATA]}"
-  else
-      echo "==> Skipping Initialization Hooks: Detected $APP_NAME data files already initialized into '${appDataDirs[APP_DATA]}'"
-  fi
+  local n=1 ; local t=$(echo ${#dirsCustom[@]})
+  for dirCustomIndex in ${!dirsCustom[@]}; do
+    #set -x
+    local dirCustomStep=${dirsCustom[$dirCustomIndex]}
+    local dirDefaultStep=${dirsDefault[$dirCustomIndex]}
+    # make partents directories if required
+    [[ ! -z "${makeParents}" && "${makeParents}" = "yes" ]] && dirCustomStep="${dirCustomStep}${dirDefaultStep}"
+    if [ ! -z "${dirCustomStep}" ]; then
+        symlinkDir "${dirDefaultStep}" "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
+        # make initialized only on sucessfull directory symlinking
+        [ $? = 0 ] && initizializeDir "${dirDefaultStep}".dist "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
+      else
+        echo "==> WARNING: No Persistent storage path detected for '$dirCustomIndex' variable... all data placed into '${dirsDefault[$dirCustomIndex]}' will be lost on container restart"
+    fi
+  done
+  #set +x
 }
 
 
 ## entrypoint functions
 runHooks() {
-  [ ! -z "${APP_DATA}" ]   && manageDataDir APP_DATA   appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_DATA... all data will be lost on container restart"
-  [ ! -z "${APP_SHARED}" ] && manageDataDir APP_SHARED appDataDirs no || echo "==> WARNING: No Persistent storage path detected for APP_SHARED... all data will be lost on container restart"
+  # tomcat webapps.dist workaround: copy default data files if the destination data dir is empty
+  if [ -e "${appDataDirsDefault[APP_DATA]}.dist/" ] && dirEmpty "${appDataDirsDefault[APP_DATA]}/" ;then cp -a "${appDataDirsDefault[APP_DATA]}.dist/*" "${appDataDirsDefault[APP_DATA]}/"; fi
 
-  # stop debugging
-  #exit
+  manageDataDir appDataDirsDefault appDataDirsCustom no
 
-  # copy default data files if the directory is not initialized
-  if [ ! -f "${appDataDirs[APP_CONF]}/.initialized" ]; then
+  # tomcat conf dir management
+  if [ ! -f "${appDataDirsDefault[APP_CONF]}/.initialized" ]; then
       tomcatConf
     else
-      echo "==> Skipping Configuration Hooks: Detected $APP_NAME configurations already initialized into '${appDataDirs[APP_CONF]}'"
+      echo "==> Skipping Configuration Hooks: Detected $APP_NAME configurations already initialized into '${appDataDirsDefault[APP_CONF]}'"
   fi
 }
 
@@ -113,25 +122,25 @@ tomcatConf() {
 
 
   if [ $APP_REMOTE_MANAGEMENT = 1 ]; then
-    echo "---> configuring ${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
-    mkdir -p "${appDataDirs[APP_CONF]}/Catalina/localhost"
+    echo "---> configuring ${appDataDirsDefault[APP_CONF]}/Catalina/localhost/manager.xml"
+    mkdir -p "${appDataDirsDefault[APP_CONF]}/Catalina/localhost"
 
     # 1. Catalina/localhost/manager.xml (allow remote management)
-    cat <<EOF > "${appDataDirs[APP_CONF]}/Catalina/localhost/manager.xml"
+    cat <<EOF > "${appDataDirsDefault[APP_CONF]}/Catalina/localhost/manager.xml"
 <Context privileged="true" antiResourceLocking="false" docBase="\${catalina.home}/webapps/manager">
   <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
 </Context>
 EOF
 
     # 2. "webapps/manager/META-INF/context.xml" (enable tomcat manager)
-    cat <<EOF > "${appDataDirs[APP_DATA]}/manager/META-INF/context.xml"
+    cat <<EOF > "${appDataDirsDefault[APP_DATA]}/manager/META-INF/context.xml"
 <Context antiResourceLocking="false" privileged="true" />
 EOF
   fi
 
   # 3. context.xml
-  echo "---> configuring ${appDataDirs[APP_CONF]}/context.xml"
-  cat <<EOF > "${appDataDirs[APP_CONF]}/context.xml"
+  echo "---> configuring ${appDataDirsDefault[APP_CONF]}/context.xml"
+  cat <<EOF > "${appDataDirsDefault[APP_CONF]}/context.xml"
 <?xml version="1.0" encoding="UTF-8"?>
   <Context antiResourceLocking="false" privileged="true" >
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
@@ -140,20 +149,20 @@ EOF
 EOF
 
   # 4. server.xml (set resource limits)
-  echo "---> configuring ${appDataDirs[APP_CONF]}/server.xml"
+  echo "---> configuring ${appDataDirsDefault[APP_CONF]}/server.xml"
   MATCH='<Connector port="8080" protocol="HTTP\/1.1"'
-  sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
-  sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
+  sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirsDefault[APP_CONF]}/server.xml"
+  sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirsDefault[APP_CONF]}/server.xml"
 
   local MATCH='<Connector port="8009" protocol="AJP\/1.3"'
-  sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
-  sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirs[APP_CONF]}/server.xml"
+  sed "/$MATCH/a maxThreads=\"512\"" -i "${appDataDirsDefault[APP_CONF]}/server.xml"
+  sed "/$MATCH/a maxConnections=\"512\"" -i "${appDataDirsDefault[APP_CONF]}/server.xml"
 
 
   # 5. tomcat-users.xml create web admin user
-  echo "---> configuring ${appDataDirs[APP_CONF]}/tomcat-users.xml"
+  echo "---> configuring ${appDataDirsDefault[APP_CONF]}/tomcat-users.xml"
   echo "----> creating '$APP_ADMIN_USERNAME' user with a '${PASSWORD_TYPE}' password"
-  cat <<EOF > "${appDataDirs[APP_CONF]}/tomcat-users.xml"
+  cat <<EOF > "${appDataDirsDefault[APP_CONF]}/tomcat-users.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <tomcat-users xmlns="http://tomcat.apache.org/xml"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -170,12 +179,12 @@ EOF
 </tomcat-users>
 EOF
   # enanche security
-  chmod o-rwx "${appDataDirs[APP_CONF]}/tomcat-users.xml"
+  chmod o-rwx "${appDataDirsDefault[APP_CONF]}/tomcat-users.xml"
 
-  # link ${appDataDirs[APP_HOME]}/conf/[enginename]/[hostname]/context.xml to ${appDataDirs[APP_SHARED]}/conf/context.xml if exist
-  if [ -e "${appDataDirs[APP_SHARED]}/conf/context.xml" ]; then
-    echo "=> linking ${appDataDirs[APP_SHARED]}/conf/context.xml to ${appDataDirs[APP_HOME]}/conf/Catalina/localhost/context.xml"
-    ln -s "${appDataDirs[APP_SHARED]}/conf/context.xml" "${appDataDirs[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
+  # link ${appDataDirsDefault[APP_HOME]}/conf/[enginename]/[hostname]/context.xml to ${appDataDirsDefault[APP_SHARED]}/conf/context.xml if exist
+  if [ -e "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" ]; then
+    echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
+    ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
   fi
 
   echo "=> All Done!"
@@ -190,8 +199,8 @@ EOF
     echo
   fi
 
-  # save the configuration status for later usage with persistent volumes
-  makeInitialized "${appDataDirs[APP_CONF]}"
+  # save the configuration status for later usage if using persistent data
+  initizializeDir "${appDataDirsDefault[APP_CONF]}" "${appDataDirsConf[APP_CONF]}" "$(printf '[%02d/%d]' $n $t)"
 }
 
 
@@ -203,14 +212,9 @@ print_fullname() { echo ${@##*/}; }
 print_name() { print_fullname $(echo ${@%.*}); }
 print_ext() { echo ${@##*.}; }
 dirEmpty() { [ -z "$(ls -A "$1/")" ]; } # return true if specified directory is empty, false if contains files
-# ISO 8601:2004 extended time format: https://en.wikipedia.org/wiki/ISO_8601
-makeInitialized() { echo "$(date +"%Y-%m-%dT%H:%M:%S%:z")" > "$1/.initialized"; }
 
-# if required move default confgurations to custom directory
-symlinkDir() {
-  set -e
-
-  local dirOriginal="$1"
+initizializeDir() {
+  local dirDefault="$1"
   shift
   local dirCustom="$1"
   shift
@@ -224,7 +228,41 @@ symlinkDir() {
     local prefixIndent="$(echo $prefixLog | sed 's/[][\/a-zA-Z0-9]/-/g')---> "
   fi
 
-  echo -e "${prefix}INFO: [$dirOriginal] detected directory data override path: '$dirCustom'"
+  # copy data files form default directory if destination is empty
+  if [ -e "$dirDefault" ] && dirEmpty "$dirCustom"; then
+      echo -e "${prefixIndent}INFO: [$dirDefault] empty dir detected copying files to '$dirCustom'..."
+      cp -a -f "$dirDefault"/* "$dirCustom"/
+  # copy data files form default directory if destination is not initialized
+  elif [ ! -f "${dirCustom}/.initialized" ]; then
+      echo -e "${prefixIndent}INFO: [$dirDefault] not initialized persistent data storage detected... coping default files to '${dirCustom}'"
+      cp -a -f "$dirDefault"/* "$dirCustom"/
+    else
+      echo -e "${prefixIndent}INFO: [$dirDefault] skipping data initialization... '$dirCustom' data dir is already initialized"
+  fi
+
+  # make the dirCustom initialized unsing ISO 8601:2004 extended time format: https://en.wikipedia.org/wiki/ISO_8601
+  echo "$(date +"%Y-%m-%dT%H:%M:%S%:z")" > "${dirCustom}/.initialized";
+}
+
+# if required move default confgurations to custom directory
+symlinkDir() {
+  #set -e
+
+  local dirDefault="$1"
+  shift
+  local dirCustom="$1"
+  shift
+  local prefixLog="$1"
+
+  if [ -z "$prefixLog" ];then
+    local prefix="--> "
+    local prefixIndent="--> "
+  else
+    local prefix="--> $prefixLog "
+    local prefixIndent="$(echo $prefixLog | sed 's/[][\/a-zA-Z0-9]/-/g')---> "
+  fi
+
+  echo -e "${prefix}INFO: [$dirDefault] detected directory data override path: '$dirCustom'"
 
   if [ ! -e "$dirCustom" ]; then
     # make destination dir if not exist
@@ -232,31 +270,27 @@ symlinkDir() {
     mkdir -p "$dirCustom"
   fi
 
-  # copy data files form original directory if destination is empty
-  if [ -e "$dirOriginal" ] && dirEmpty "$dirCustom"; then
-    echo -e "${prefixIndent}INFO: [$dirOriginal] empty dir detected copying files to '$dirCustom'..."
-    cp -a -f "$dirOriginal/*" "$dirCustom/"
-  elif [ ! -e "$dirOriginal" ]; then
-    # make original dir if not exist
-    echo -e "${prefixIndent}WARN: [$dirOriginal] original directory doesn't exist... creating empty directory"
-    mkdir -p "$dirOriginal"
+  if [ ! -e "$dirDefault" ]; then
+    # make default dir if not exist
+    echo -e "${prefixIndent}WARN: [$dirDefault] default directory doesn't exist... creating empty directory"
+    mkdir -p "$dirDefault"
   fi
 
-  # rename original directory
-  if [ -e "$dirOriginal" ]; then
-    echo -e "${prefixIndent}INFO: [$dirOriginal] renaming to '${dirOriginal}.dist'"
-    mv "$dirOriginal" "$dirOriginal".dist
+  # rename default directory
+  if [ -e "$dirDefault" ]; then
+    echo -e "${prefixIndent}INFO: [$dirDefault] renaming to '${dirDefault}.dist'"
+    mv "$dirDefault" "$dirDefault".dist
   fi
 
-  # symlink original directory to custom directory
-  echo -e "${prefixIndent}INFO: [$dirOriginal] symlinking '$dirCustom' to '$dirOriginal'"
-  ln -s "$dirCustom" "$dirOriginal"
+  # symlink default directory to custom directory
+  echo -e "${prefixIndent}INFO: [$dirDefault] symlinking '$dirDefault' to '$dirCustom'"
+  ln -s "$dirCustom" "$dirDefault"
 }
 
 symlinkFile() {
-  set -e
+  #set -e
 
-  local fileOriginal="$1"
+  local fileDefault="$1"
   shift
   local fileCustom="$1"
   shift
@@ -270,26 +304,26 @@ symlinkFile() {
     local prefixIndent="$(echo $prefixLog | sed 's/[][\/a-zA-Z0-9]/-/g')---> "
   fi
 
-  echo -e "${prefix}INFO: [$fileOriginal] file data override detected: original:[$fileOriginal] custom:[$fileCustom]"
+  echo -e "${prefix}INFO: [$fileDefault] file data override detected: default:[$fileDefault] custom:[$fileCustom]"
 
-  if [ -e "$fileOriginal" ]; then
-      # copy data files form original directory if destination is empty
+  if [ -e "$fileDefault" ]; then
+      # copy data files form default directory if destination is empty
       if [ ! -e "$fileCustom" ]; then
-        echo -e "${prefixIndent}INFO: [$fileOriginal] detected not existing file '$fileCustom'. copying '$fileOriginal' to '$fileCustom'..."
-        cp -a -f "$fileOriginal" "$fileCustom"
+        echo -e "${prefixIndent}INFO: [$fileDefault] detected not existing file '$fileCustom'. copying '$fileDefault' to '$fileCustom'..."
+        cp -a -f "$fileDefault" "$fileCustom"
       fi
-      echo -e "${prefixIndent}INFO: [$fileOriginal] renaming to '${fileOriginal}.dist'... "
-      mv "$fileOriginal" "$fileOriginal".dist
+      echo -e "${prefixIndent}INFO: [$fileDefault] renaming to '${fileDefault}.dist'... "
+      mv "$fileDefault" "$fileDefault".dist
     else
-      echo -e "${prefixIndent}WARN: [$fileOriginal] original file doesn't exist... creating symlink from a not existing source file"
-      #touch "$fileOriginal"
+      echo -e "${prefixIndent}WARN: [$fileDefault] default file doesn't exist... creating symlink from a not existing source file"
+      #touch "$fileDefault"
   fi
 
-  echo -e "${prefixIndent}INFO: [$fileOriginal] symlinking '$fileCustom' to '$fileOriginal'"
+  echo -e "${prefixIndent}INFO: [$fileDefault] symlinking '$fileDefault' to '$fileCustom'"
   # create parent dir if not exist
   [ ! -e "$(dirname "$fileCustom")" ] && mkdir -p "$(dirname "$fileCustom")"
   # link custom file over orinal path
-  ln -s "$fileCustom" "$fileOriginal"
+  ln -s "$fileCustom" "$fileDefault"
 }
 
 runHooks
