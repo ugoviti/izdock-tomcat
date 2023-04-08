@@ -80,7 +80,7 @@ manageDataDir() {
         # make initialized only on sucessfull directory symlinking
         [ $? = 0 ] && initizializeDir "${dirDefaultStep}".dist "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
       else
-        echo "==> WARNING: No Persistent storage path detected for '$dirCustomIndex' variable... all data placed into '${dirsDefault[$dirCustomIndex]}' will be lost on container restart"
+        echo "--> WARNING: No Persistent storage path detected for '$dirCustomIndex' variable... all data placed into '${dirsDefault[$dirCustomIndex]}' will be lost on container restart"
     fi
   done
   #set +x

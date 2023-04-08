@@ -35,7 +35,7 @@ ENV TOMCAT_VER        ${APP_VER}
 
 ## components app versions
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VER=42.5.1
+ARG PGSQL_JDBC_VER=42.6.0
 
 ## https://dev.mysql.com/downloads/connector/j
 ARG MYSQL_JDBC_VER=8.0.32
@@ -44,8 +44,9 @@ ARG MYSQL_JDBC_VER=8.0.32
 ARG MSSQL_JDBC_VER=12.2.0
 ## find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/a/9/1/a91534b0-ed8c-4501-b491-e1dd0a20335a
+
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VER=11.1
+ARG AS400_JDBC_VER=11.2
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VER=0.13.6
@@ -56,10 +57,10 @@ ARG METRO_VER=2.4.8
 
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
-ARG JAXB_VER=2.3.7
+ARG JAXB_VER=2.3.8
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.19.0
+ARG REDISSON_VER=3.20.1
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VER=1.6.2
@@ -72,6 +73,9 @@ ARG JAVAX_ACTIVATION_VER=1.2.0
 
 ## https://github.com/eclipse-ee4j/jaf/releases
 ARG JAKARTA_ACTIVATION_VER=2.0.1
+
+## https://github.com/ugoviti/izmysqlsync
+ARG IZMYSQLSYNC_VER=2.0.2
 
 # https://github.com/krallin/tini/releases
 ENV TINI_VER 0.19.0
@@ -114,15 +118,12 @@ ENV APP_GRP               "tomcat"
 ENV APP_ADMIN_USERNAME    "manager"
 ENV APP_ADMIN_PASSWORD    ""
 
-# specific app configuration variables
-ENV JAVA_OPTS     "-Djava.awt.headless=true -Dfile.encoding=UTF-8"
-#ENV CATALINA_OPTS "-XX:+UseG1GC -Dfile.encoding=UTF-8 -server -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
-#ENV CATALINA_OPTS "-XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
-ENV CATALINA_OPTS "-server"
+## app specific variables
 ENV CATALINA_HOME "${APP_HOME}"
 ENV PATH          "${PATH}:${CATALINA_HOME}/bin"
 ENV UMASK         "0002"
 
+## define workdir
 WORKDIR ${CATALINA_HOME}
 
 ## install
@@ -137,6 +138,7 @@ RUN set -xe && \
   apt-get update && apt-get upgrade -y && \
   apt-get install -y --no-install-recommends \
     bash \
+    runit \
     procps \
     net-tools \
     iputils-ping \
@@ -267,6 +269,15 @@ RUN if [ ${TOMCAT_VER_MAJOR} -ge 8 ]; then \
         ;fi \
     ;fi
 
+## install other components
+RUN set -xe && \
+  : "---------- START install izmysqlsync by InitZero ----------" && \
+  cd /usr/src && \
+  mkdir -p izmysqlsync && \
+  curl -fSL --connect-timeout 30 https://github.com/ugoviti/izmysqlsync/archive/${IZMYSQLSYNC_VER}.tar.gz | tar xz --strip 1 -C izmysqlsync && \
+  cp -a izmysqlsync/izmysqlsync /usr/local/bin/izmysqlsync && \
+  chmod 755 /usr/local/bin/izmysqlsync
+
 
 ### pre entrypoint management
 RUN set -xe && \
@@ -302,7 +313,6 @@ RUN set -xe && \
   # test: fix infinite dns cache jvm
   #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security
 
-
 ## install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/
 
@@ -317,6 +327,15 @@ VOLUME ${APP_HOME}
 
 ## add files to container
 ADD Dockerfile filesystem README.md /
+
+# app specific variables
+ENV JAVA_OPTS     "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -XshowSettings:vm -XX:-HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -XX:+PreferContainerQuotaForCPUCount -XX:+UseCodeCacheFlushing -XX:+UseStringDeduplication -XX:+OptimizeStringConcat"
+## for jmx support add
+#ENV JAVA_OPTS     "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345"
+## for changing GarbageCollector and memory constraints
+#ENV JAVA_OPTS     "-XX:+UseG1GC -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
+## for definig tomcat's extra args use CATALINA_OPTS var
+#ENV CATALINA_OPTS "-javaagent:$CATALINA_HOME/glowroot/glowroot.jar"
 
 ## container pre-entrypoint variables
 ENV APP_RUNAS          "true"
