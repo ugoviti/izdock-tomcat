@@ -94,6 +94,7 @@ manageDataDir() {
 
 ## entrypoint functions
 runHooks() {
+  echo "==> Running Data Management Hooks:"
   # tomcat webapps.dist workaround: copy default data files if the destination data dir is empty
   if [ -e "${appDataDirsDefault[APP_DATA]}.dist" ] && dirEmpty "${appDataDirsDefault[APP_DATA]}" ;then
     mv "${appDataDirsDefault[APP_DATA]}".dist/* "${appDataDirsDefault[APP_DATA]}"/
