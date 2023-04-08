@@ -209,10 +209,10 @@ EOF
 
   # TESTING custom context.xml for defining database
   # link ${appDataDirsDefault[APP_HOME]}/conf/[enginename]/[hostname]/context.xml to ${appDataDirsDefault[APP_SHARED]}/conf/context.xml if exist
-#   if [ -e "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" ]; then
-#     echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
-#     ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
-#   fi
+  if [ -e "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" ]; then
+    echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
+    ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
+  fi
 
   echo "=> All Done!"
 
