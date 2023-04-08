@@ -155,6 +155,7 @@ RUN set -xe && \
     imagemagick \
     ca-certificates \
     gnupg \
+    less \
     netcat \
     curl \
     mysql-client-core-8.0 \
@@ -276,7 +277,8 @@ RUN set -xe && \
   mkdir -p izmysqlsync && \
   curl -fSL --connect-timeout 30 https://github.com/ugoviti/izmysqlsync/archive/${IZMYSQLSYNC_VER}.tar.gz | tar xz --strip 1 -C izmysqlsync && \
   cp -a izmysqlsync/izmysqlsync /usr/local/bin/izmysqlsync && \
-  chmod 755 /usr/local/bin/izmysqlsync
+  chmod 755 /usr/local/bin/izmysqlsync && \
+  sed 's/COMMANDS=.*/COMMANDS="mysqldump mysql"/' -i /usr/local/bin/izmysqlsync
 
 
 ### pre entrypoint management
