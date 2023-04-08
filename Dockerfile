@@ -285,7 +285,6 @@ RUN set -xe && \
   rm -f  ${CATALINA_HOME}/bin/*.bat && \
   rm -rf ${CATALINA_HOME}/webapps.dist/docs && \
   rm -rf ${CATALINA_HOME}/webapps.dist/examples && \
-  cp -a  ${CATALINA_HOME}/webapps.dist/* ${CATALINA_HOME}/webapps/ && \
   cp -a  ${CATALINA_HOME}/conf ${CATALINA_HOME}/conf.dist && \
   \
   # create extra directories
@@ -293,7 +292,6 @@ RUN set -xe && \
   mkdir -p "${CATALINA_HOME}/shared/lib" && \
   mkdir -p "${CATALINA_HOME}/shared/fonts" && \
   mkdir -p "${CATALINA_HOME}/shared/conf" && \
-  mkdir -p "${CATALINA_HOME}/conf/Catalina/localhost" && \
   \
   ## create system users and set default permissions
   umask $UMASK && \
@@ -301,17 +299,7 @@ RUN set -xe && \
   useradd -d "${CATALINA_HOME}" -u "${APP_UID}" -r -M -s /sbin/nologin -c "$APP_DESCRIPTION" -g "${APP_GRP}" "${APP_USR}" && \
   chown -R "${APP_USR}":"${APP_GRP}" "${CATALINA_HOME}"/ && \
   ## custom tomcat path compatibility
-  ln -s "${CATALINA_HOME}" /opt/tomcat && \
-  \
-  ## remove unused files
-  # catalina.properties
-  sed 's/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\/tomcat.util.scan.StandardJarScanFilter.jarsToSkip=\\\nwebservices-*.jar,\\/' -i "${CATALINA_HOME}/conf/catalina.properties" && \
-  # disable ssl engine by default
-  sed 's/SSLEngine="on"/SSLEngine="off"/g' -i "${CATALINA_HOME}/conf/server.xml"
-  # disable java assistive_technologies to avoid errors like java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper (not working since tomcat:8.5.42-jdk8-openjdk-slim)
-  #sed -e '/^assistive_technologies=/s/^/#/' -i /etc/java-*-openjdk/accessibility.properties && \
-  # test: fix infinite dns cache jvm
-  #echo "networkaddress.cache.ttl=60" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security
+  ln -s "${CATALINA_HOME}" /opt/tomcat
 
 ## install gcsfuse
 #COPY --from=gcsfuse /go/bin/gcsfuse /usr/local/bin/

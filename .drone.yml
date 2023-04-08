@@ -3,11 +3,8 @@ type: docker
 name: tomcat10-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:10.1.5-jdk17-temurin-jammy"
-  APP_VER: 10.1.5
-  APP_VER_MAJOR: 10
-  APP_VER_MINOR: 1
-  APP_VER_PATCH: 5
+  IMAGE_FROM: "tomcat:10.1.7-jdk17-temurin-jammy"
+  APP_VER: 10.1.7
 
 trigger:
   event:
@@ -63,10 +60,7 @@ steps:
     build_args_from_env:
     - IMAGE_FROM
     - APP_VER
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_JDBC_VERSION
+    - MYSQL_JDBC_VER
     - APP_VER_BUILD
     - APP_BUILD_COMMIT
     - APP_BUILD_DATE
@@ -101,14 +95,11 @@ type: docker
 name: tomcat9-amd64
 
 environment:
-  IMAGE_FROM: "tomcat:9.0.71-jdk11-temurin-jammy"
-  APP_VER: 9.0.71
-  APP_VER_MAJOR: 9
-  APP_VER_MINOR: 0
-  APP_VER_PATCH: 71
+  IMAGE_FROM: "tomcat:9.0.73-jdk11-temurin-jammy"
+  APP_VER: 9.0.73
   ## stuck to 8.0.22 because error:
   ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2021-01-04T23:21:50
-  MYSQL_JDBC_VERSION: 8.0.22
+  MYSQL_JDBC_VER: 8.0.22
 
 trigger:
   event:
@@ -170,10 +161,7 @@ steps:
     build_args_from_env:
     - IMAGE_FROM
     - APP_VER
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_JDBC_VERSION
+    - MYSQL_JDBC_VER
     - APP_VER_BUILD
     - APP_BUILD_COMMIT
     - APP_BUILD_DATE
@@ -200,10 +188,7 @@ name: tomcat8-amd64
 environment:
   IMAGE_FROM: "tomcat:8.5.82-jdk8-openjdk-slim-buster"
   APP_VER: 8.5.85
-  APP_VER_MAJOR: 8
-  APP_VER_MINOR: 5
-  APP_VER_PATCH: 85
-  MYSQL_JDBC_VERSION: 5.1.49
+  MYSQL_JDBC_VER: 5.1.49
 
 trigger:
   event:
@@ -259,10 +244,7 @@ steps:
     build_args_from_env:
     - IMAGE_FROM
     - APP_VER
-    - APP_VER_MAJOR
-    - APP_VER_MINOR
-    - APP_VER_PATCH
-    - MYSQL_CONNECTOR_J
+    - MYSQL_JDBC_VER
     - APP_VER_BUILD
     - APP_BUILD_COMMIT
     - APP_BUILD_DATE

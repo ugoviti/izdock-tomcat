@@ -1,7 +1,7 @@
 #!/bin/bash
 # initzero docker entrypoint init script
 # written by Ugo Viti <ugo.viti@initzero.it>
-# 20230623
+# 20230423
 
 #set -x
 
@@ -32,6 +32,7 @@ appHooks() {
 # exec app hooks
 appHooks
 
+# define pre command hooks
 if [ "$MULTISERVICE" = "true" ]; then
     # if this container will run multiple commands, override the entry point cmd
     CMD="runsvdir -P /etc/service"
