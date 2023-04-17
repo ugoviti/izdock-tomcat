@@ -84,7 +84,7 @@ manageDataDir() {
     # make partents directories if required
     [[ ! -z "${makeParents}" && "${makeParents}" = "yes" ]] && dirCustomStep="${dirCustomStep}${dirDefaultStep}"
     symlinkDir "${dirDefaultStep}" "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
-    # make initialized only on sucessful directory symlinking
+    # make initialized only on sucessfull directory symlinking
     [ $? = 0 ] && initizializeDir "${dirDefaultStep}".dist "${dirCustomStep}" "$(printf '[%02d/%d]' $n $t)"
     let n+=1
   done
@@ -191,6 +191,8 @@ EOF
   <user username="$APP_ADMIN_USERNAME" password="$APP_ADMIN_PASSWORD" roles="manager,manager-gui,manager-script,manager-jmx,admin,admin-gui,admin-script"/>
 </tomcat-users>
 EOF
+
+  ## other customizations
   # enanche security
   chmod o-rwx "${appDataDirsDefault[APP_CONF]}/tomcat-users.xml"
 
@@ -209,10 +211,10 @@ EOF
 
   # TESTING custom context.xml for defining database
   # link ${appDataDirsDefault[APP_HOME]}/conf/[enginename]/[hostname]/context.xml to ${appDataDirsDefault[APP_SHARED]}/conf/context.xml if exist
-  if [ -e "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" ]; then
-    echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
-    ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
-  fi
+#   if [ -e "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" ]; then
+#     echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
+#     ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
+#   fi
 
   echo "=> All Done!"
 

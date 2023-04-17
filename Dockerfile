@@ -75,7 +75,7 @@ ARG JAVAX_ACTIVATION_VER=1.2.0
 ARG JAKARTA_ACTIVATION_VER=2.0.1
 
 ## https://github.com/ugoviti/izmysqlsync
-ARG IZMYSQLSYNC_VER=2.0.2
+ARG IZMYSQLSYNC_VER=2.0.3
 
 # https://github.com/krallin/tini/releases
 ENV TINI_VER 0.19.0
@@ -278,6 +278,7 @@ RUN set -xe && \
   curl -fSL --connect-timeout 30 https://github.com/ugoviti/izmysqlsync/archive/${IZMYSQLSYNC_VER}.tar.gz | tar xz --strip 1 -C izmysqlsync && \
   cp -a izmysqlsync/izmysqlsync /usr/local/bin/izmysqlsync && \
   chmod 755 /usr/local/bin/izmysqlsync && \
+  # fix missing ssh and sshpass options in the tomcat container
   sed 's/COMMANDS=.*/COMMANDS="mysqldump mysql"/' -i /usr/local/bin/izmysqlsync
 
 
