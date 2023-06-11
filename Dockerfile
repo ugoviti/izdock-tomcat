@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.75-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.76-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -17,7 +17,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.75
+ARG APP_VER=9.0.76
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -38,7 +38,7 @@ ENV TOMCAT_VER        ${APP_VER}
 ARG PGSQL_JDBC_VER=42.6.0
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=8.0.32
+ARG MYSQL_JDBC_VER=8.0.33
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 ARG MSSQL_JDBC_VER=12.2.0
@@ -49,7 +49,7 @@ ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/a/9/1/a91534b0-ed
 ARG AS400_JDBC_VER=11.2
 
 ## https://github.com/glowroot/glowroot/releases
-ARG GLOWROOT_VER=0.13.6
+ARG GLOWROOT_VER=0.14.0
 
 ## https://javaee.github.io/metro/download
 ## https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
@@ -60,7 +60,7 @@ ARG METRO_VER=2.4.8
 ARG JAXB_VER=2.3.8
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.20.1
+ARG REDISSON_VER=3.22.0
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VER=1.6.2
