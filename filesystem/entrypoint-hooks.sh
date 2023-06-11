@@ -193,7 +193,7 @@ EOF
 EOF
 
   ## other customizations
-  # enanche security
+  # enhance security
   chmod o-rwx "${appDataDirsDefault[APP_CONF]}/tomcat-users.xml"
 
   ## remove unused files
@@ -215,6 +215,12 @@ EOF
 #     echo "=> linking ${appDataDirsDefault[APP_SHARED]}/conf/context.xml to ${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml"
 #     ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
 #   fi
+
+  echo "---> configuring owner user '${APP_USR}' and group '${APP_GID}' on '${appDataDirsDefault[APP_DATA]}'"
+  chown -R ${APP_USR}:${APP_GRP} "${appDataDirsDefault[APP_DATA]}/"
+
+  echo "---> configuring owner user '${APP_USR}' and group '${APP_GID}' on '${appDataDirsDefault[APP_SHARED]}'"
+  chown -R ${APP_USR}:${APP_GRP} "${appDataDirsDefault[APP_SHARED]}/"
 
   echo "=> All Done!"
 
