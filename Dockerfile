@@ -232,8 +232,8 @@ RUN set -xe && \
   \
   # redis session manager
   if [ $APP_PLUGIN_REDISSON = 1 ]; then \
-     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-all/${REDISSON_VER}/redisson-all-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VER}.jar" && \
-     curl -fSL --connect-timeout 10 "https://repository.sonatype.org/service/local/repositories/central-proxy/content/org/redisson/redisson-tomcat-${TOMCAT_VER_MAJOR}/${REDISSON_VER}/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/redisson/redisson-all/${REDISSON_VER}/redisson-all-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-all-${REDISSON_VER}.jar" && \
+     curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/org/redisson/redisson-tomcat-${TOMCAT_VER_MAJOR}/${REDISSON_VER}/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" -o "${CATALINA_HOME}/lib/redisson-tomcat-${TOMCAT_VER_MAJOR}-${REDISSON_VER}.jar" \
   ;fi && \
   \
   # javamail
