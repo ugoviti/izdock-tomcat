@@ -216,12 +216,6 @@ EOF
 #     ln -s "${appDataDirsDefault[APP_SHARED]}/conf/context.xml" "${appDataDirsDefault[APP_HOME]}/conf/Catalina/localhost/context.xml.default"
 #   fi
 
-  echo "---> configuring owner user '${APP_USR}' and group '${APP_GID}' on '${appDataDirsDefault[APP_DATA]}'"
-  chown -R ${APP_USR}:${APP_GRP} "${appDataDirsDefault[APP_DATA]}/"
-
-  echo "---> configuring owner user '${APP_USR}' and group '${APP_GID}' on '${appDataDirsDefault[APP_SHARED]}'"
-  chown -R ${APP_USR}:${APP_GRP} "${appDataDirsDefault[APP_SHARED]}/"
-
   echo "=> All Done!"
 
   if [ "$PASSWORD_TYPE" = "random" ]; then
@@ -273,6 +267,8 @@ initizializeDir() {
     elif [ ! -f "${dirCustom}/.initialized" ]; then
       echo -e "${prefixIndent}INFO: [$dirDefault] not initialized persistent data storage detected... coping default files to '${dirCustom}'"
       cp -a -f "$dirDefault"/* "$dirCustom"/
+      echo -e "${prefixIndent}INFO: [$dirDefault] configuring owner with user '${APP_USR}' and group '${APP_GID}' on '${dirCustom}'"
+      chown -R ${APP_USR}:${APP_GRP} "$dirCustom"/
       else
       echo -e "${prefixIndent}INFO: [$dirDefault] skipping data initialization... '$dirCustom' data dir is already initialized"
     fi
