@@ -314,7 +314,7 @@ RUN set -xe && \
 EXPOSE 8080/tcp 8009/tcp
 
 ## define volumes
-VOLUME ${APP_HOME}
+#VOLUME ${APP_HOME}
 
 ## turn on tomcat user
 #USER ${APP_USR}

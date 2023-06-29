@@ -30,7 +30,7 @@ declare -A appDataDirsCustom=(
   [APP_SHARED]="${APP_SHARED}"
 )
 
-# array of default default data directory paths used by this app
+# array of default data directory paths used by this app
 declare -A appDataDirsDefault=(
   [APP_HOME]="/usr/local/tomcat"
   [APP_CONF]="/usr/local/tomcat/conf"
@@ -49,9 +49,9 @@ ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 echo "$TZ" > /etc/timezone
 
 # input: arg1 arg2 arg3
-# arg1: <ARRAY_NAME> define the array name containing all custom directory paths
-# arg2: <ARRAY_NAME> define the array name containing all default directory paths
-# arg3: <yes/no> yes = create the Parents full path of default path using the persistent data path as basedir. no or no value = use the persistent data path directly as final data destination
+# arg1: <ARRAY_NAME> define the array name containing all default directory paths
+# arg2: <ARRAY_NAME> define the array name containing all custom directory paths
+# arg3: <yes/no> "yes" = create the Parents full path of default path using the persistent data path as basedir. "no" or "nothing value" = use the persistent data path directly as final data destination
 manageDataDir() {
   # arg1: import default dir array name (dirsDefault is an Associative Array)
   # clone the source array into a new temporary array
@@ -240,7 +240,7 @@ print_path() { echo ${@%/*}; }
 print_fullname() { echo ${@##*/}; }
 print_name() { print_fullname $(echo ${@%.*}); }
 print_ext() { echo ${@##*.}; }
-dirEmpty() { [ -z "$(ls -A "$1/")" ]; } # return true if specified directory is empty, false if contains files
+dirEmpty() { [ -z "$(ls -A "$1"/)" ]; } # return true if specified directory is empty, false if contains files
 
 initizializeDir() {
   local dirDefault="$1"
@@ -261,13 +261,13 @@ initizializeDir() {
   if [ ! -z "$dirCustom" ]; then
     # copy data files form default directory if destination is empty
     if [ -e "$dirDefault" ] && dirEmpty "$dirCustom"; then
-      echo -e "${prefixIndent}INFO: [$dirDefault] empty dir detected copying files to '$dirCustom'..."
+      echo -e "${prefixIndent}INFO: [$dirDefault] empty custom dir detected... copying default files from '${dirDefault}' to '${dirCustom}'"
       cp -a -f "$dirDefault"/* "$dirCustom"/
       echo -e "${prefixIndent}INFO: [$dirDefault] setting owner with user '${APP_USR}' (UID:${APP_UID}) and group '${APP_GRP}' (GID:${APP_GID}) on '${dirCustom}'"
       chown -R ${APP_USR}:${APP_GRP} "$dirCustom"/
     # copy data files form default directory if destination is not initialized
     elif [ ! -f "${dirCustom}/.initialized" ]; then
-      echo -e "${prefixIndent}INFO: [$dirDefault] not initialized persistent data storage detected in '${dirCustom}/.initialized'... coping default files from '${dirDefault}' to '${dirCustom}'"
+      echo -e "${prefixIndent}INFO: [$dirDefault] not initialized persistent data storage detected in '${dirCustom}/.initialized'... copying default files from '${dirDefault}' to '${dirCustom}'"
       cp -a -f "$dirDefault"/* "$dirCustom"/
       echo -e "${prefixIndent}INFO: [$dirDefault] setting owner with user '${APP_USR}' (UID:${APP_UID}) and group '${APP_GRP}' (GID:${APP_GID}) on '${dirCustom}'"
       chown -R ${APP_USR}:${APP_GRP} "$dirCustom"/
@@ -282,8 +282,6 @@ initizializeDir() {
 
 # if required move default confgurations to custom directory
 symlinkDir() {
-  #set -e
-
   local dirDefault="$1"
   shift
   local dirCustom="$1"
@@ -328,8 +326,6 @@ symlinkDir() {
 }
 
 symlinkFile() {
-  #set -e
-
   local fileDefault="$1"
   shift
   local fileCustom="$1"
