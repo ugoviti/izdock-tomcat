@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.76-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.78-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -17,7 +17,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.76
+ARG APP_VER=9.0.78
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -38,7 +38,7 @@ ENV TOMCAT_VER        ${APP_VER}
 ARG PGSQL_JDBC_VER=42.6.0
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=8.0.33
+ARG MYSQL_JDBC_VER=8.1.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 ARG MSSQL_JDBC_VER=12.2.0
