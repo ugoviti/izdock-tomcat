@@ -162,6 +162,7 @@ RUN set -xe && \
     sudo \
     acl \
     openssh-client \
+    rsync \
     && \
   # install tini as init container
   if [ ${TOMCAT_VER_MAJOR} \> 8 ]; then \
