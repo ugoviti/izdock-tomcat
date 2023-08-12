@@ -48,7 +48,7 @@ ARG MYSQL_JDBC_VER=8.1.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 ARG MSSQL_JDBC_VER=12.4.0
-## find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
+## find MSSQL_JDBC_BASEURL downloading the jdbc driver from the above url of microsoft web site
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f5a-449c-a284-36c36bc45652
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
