@@ -34,6 +34,12 @@ ENV TOMCAT_VER        ${APP_VER}
 #ENV TOMCAT_NATIVE_VER 1.2.19
 
 ## components app versions
+## https://github.com/ugoviti/izmysqlsync
+ARG IZMYSQLSYNC_VER=2.0.3
+
+# https://github.com/krallin/tini/releases
+ENV TINI_VER 0.19.0
+
 ## https://jdbc.postgresql.org
 ARG PGSQL_JDBC_VER=42.6.0
 
@@ -41,9 +47,9 @@ ARG PGSQL_JDBC_VER=42.6.0
 ARG MYSQL_JDBC_VER=8.1.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VER=12.2.0
+ARG MSSQL_JDBC_VER=12.4.0
 ## find MSSQL_JDBC_BASEURL downloading the jdbc driver from microsoft site
-ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/a/9/1/a91534b0-ed8c-4501-b491-e1dd0a20335a
+ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f5a-449c-a284-36c36bc45652
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_JDBC_VER=11.2
@@ -74,11 +80,9 @@ ARG JAVAX_ACTIVATION_VER=1.2.0
 ## https://github.com/eclipse-ee4j/jaf/releases
 ARG JAKARTA_ACTIVATION_VER=2.0.1
 
-## https://github.com/ugoviti/izmysqlsync
-ARG IZMYSQLSYNC_VER=2.0.3
-
-# https://github.com/krallin/tini/releases
-ENV TINI_VER 0.19.0
+## https://poi.apache.org/download.html
+ARG POI_VER=5.2.3
+ARG POI_VER_DATE=20220909
 
 ## debian specific
 ENV DEBIAN_FRONTEND       noninteractive
@@ -96,6 +100,7 @@ ENV APP_PLUGIN_JAVAMAIL   1
 ENV APP_PLUGIN_JAVAXMAIL_API      1
 ENV APP_PLUGIN_JAVAX_ACTIVATION   1
 ENV APP_PLUGIN_JAKARTA_ACTIVATION 1
+ENV APP_PLUGIN_POI        1
 
 # generic app configuration variables
 ENV APP_NAME              "tomcat"
@@ -255,6 +260,16 @@ RUN set -xe && \
   # jakarta.activation
   if [ $APP_PLUGIN_JAKARTA_ACTIVATION = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/${JAKARTA_ACTIVATION_VER}/jakarta.activation-${JAKARTA_ACTIVATION_VER}.jar" -o "${CATALINA_HOME}/lib/jakarta.activation-${JAKARTA_ACTIVATION_VER}.jar" \
+  ;fi && \
+  \
+  # poi
+  # https://archive.apache.org/dist/poi/release/bin/
+  if [ $APP_PLUGIN_POI = 1 ]; then \
+     curl -fSL --connect-timeout 10 "https://archive.apache.org/dist/poi/release/bin/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" -o "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" \
+     unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
+     unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-ooxml-full-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
+     unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-excelant-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
+     rm -f "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" \
   ;fi && \
   cd / && \
   \
