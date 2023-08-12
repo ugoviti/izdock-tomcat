@@ -197,7 +197,7 @@ RUN set -xe && \
   \
   # mssql java connector
   if [ $APP_PLUGIN_MSSQL = 1 ]; then \
-     curl -fSL --connect-timeout 10 "${MSSQL_JDBC_BASEURL}/sqljdbc_${MSSQL_JDBC_VER}.0_enu.tar.gz" | tar xz --wildcards --strip 2 -C "${CATALINA_HOME}/lib/" "*/enu/jars/mssql-jdbc-${MSSQL_JDBC_VER}.jre11.jar" \
+     curl -fSL --connect-timeout 10 "${MSSQL_JDBC_BASEURL}/sqljdbc_${MSSQL_JDBC_VER}.0_enu.tar.gz" | tar xz --wildcards --strip 3 -C "${CATALINA_HOME}/lib/" "*/enu/jars/mssql-jdbc-${MSSQL_JDBC_VER}.jre11.jar" \
   ;fi && \
   \
   # jt400 - as400 java connector
