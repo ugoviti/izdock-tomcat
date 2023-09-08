@@ -269,7 +269,7 @@ RUN set -xe && \
   if [ $APP_PLUGIN_POI = 1 ]; then \
      curl -fSL --connect-timeout 10 "https://archive.apache.org/dist/poi/release/bin/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" -o "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" && \
      unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
-     unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-ooxml-full-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
+     unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-ooxml-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
      unzip -j "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" */poi-excelant-"${POI_VER}".jar -d "${CATALINA_HOME}/lib/" && \
      rm -f "/tmp/poi-bin-${POI_VER}-${POI_VER_DATE}.zip" \
   ;fi && \
