@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.78-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.80-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -17,7 +17,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.78
+ARG APP_VER=9.0.80
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -81,8 +81,10 @@ ARG JAVAX_ACTIVATION_VER=1.2.0
 ARG JAKARTA_ACTIVATION_VER=2.0.1
 
 ## https://poi.apache.org/download.html
-ARG POI_VER=5.2.3
-ARG POI_VER_DATE=20220909
+#ARG POI_VER=5.2.3
+#ARG POI_VER_DATE=20220909
+ARG POI_VER=3.17
+ARG POI_VER_DATE=20170915
 
 ## debian specific
 ENV DEBIAN_FRONTEND       noninteractive
