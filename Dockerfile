@@ -17,7 +17,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.80
+ARG APP_VER=9.0.82
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -170,6 +170,7 @@ RUN set -xe && \
     acl \
     openssh-client \
     rsync \
+    lftp \
     && \
   # install tini as init container
   if [ ${TOMCAT_VER_MAJOR} \> 8 ]; then \
