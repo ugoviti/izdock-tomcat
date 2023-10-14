@@ -296,9 +296,7 @@ RUN if [ ${TOMCAT_VER_MAJOR} -ge 8 ]; then \
 RUN set -xe && \
   : "---------- START install izmysqlsync by InitZero ----------" && \
   cd /usr/src && \
-  mkdir -p izmysqlsync && \
-  curl -fSL --connect-timeout 30 https://github.com/ugoviti/izmysqlsync/archive/${IZMYSQLSYNC_VER}.tar.gz | tar xz --strip 1 -C izmysqlsync && \
-  cp -a izmysqlsync/izmysqlsync /usr/local/bin/izmysqlsync && \
+  curl -fSL --connect-timeout 30 https://github.com/ugoviti/izmysqlsync/archive/${IZMYSQLSYNC_VER}.tar.gz | tar xz --strip 1 -C /usr/local/bin/ && \
   chmod 755 /usr/local/bin/izmysqlsync && \
   # fix missing ssh and sshpass options in the tomcat container
   sed 's/COMMANDS=.*/COMMANDS="mysqldump mysql"/' -i /usr/local/bin/izmysqlsync
