@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.80-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.83-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -17,7 +17,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.82
+ARG APP_VER=9.0.83
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -44,11 +44,11 @@ ENV TINI_VER 0.19.0
 ARG PGSQL_JDBC_VER=42.6.0
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=8.1.0
+ARG MYSQL_JDBC_VER=8.2.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VER=12.4.0
-## find MSSQL_JDBC_BASEURL downloading the jdbc driver from the above url of microsoft web site
+ARG MSSQL_JDBC_VER=12.4.2
+## find MSSQL_JDBC_BASEURL downloading the tar.gz jdbc driver from the above url of microsoft web site
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f5a-449c-a284-36c36bc45652/enu
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
