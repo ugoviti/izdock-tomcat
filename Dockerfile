@@ -54,6 +54,9 @@ ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
 ARG AS400_JDBC_VER=11.2
 
+## https://github.com/redisson/redisson/releases
+ARG REDISSON_VER=3.24.3
+
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VER=0.14.0
 
@@ -64,9 +67,6 @@ ARG METRO_VER=2.4.8
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
 ARG JAXB_VER=2.3.8
-
-## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.22.0
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VER=1.6.2
