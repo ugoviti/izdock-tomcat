@@ -1,5 +1,6 @@
+# https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.83-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.84-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -17,7 +18,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.83
+ARG APP_VER=9.0.84
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -41,7 +42,7 @@ ARG IZMYSQLSYNC_VER=2.0.3
 ENV TINI_VER 0.19.0
 
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VER=42.6.0
+ARG PGSQL_JDBC_VER=42.7.1
 
 ## https://dev.mysql.com/downloads/connector/j
 ARG MYSQL_JDBC_VER=8.2.0
@@ -55,7 +56,7 @@ ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f
 ARG AS400_JDBC_VER=11.2
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.24.3
+ARG REDISSON_VER=3.25.2
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VER=0.14.0
