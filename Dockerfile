@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.84-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.85-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -18,7 +18,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.84
+ARG APP_VER=9.0.85
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -45,7 +45,7 @@ ENV TINI_VER 0.19.0
 ARG PGSQL_JDBC_VER=42.7.1
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=8.2.0
+ARG MYSQL_JDBC_VER=8.3.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
 ARG MSSQL_JDBC_VER=12.4.2
@@ -53,21 +53,21 @@ ARG MSSQL_JDBC_VER=12.4.2
 ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f5a-449c-a284-36c36bc45652/enu
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VER=11.2
+ARG AS400_JDBC_VER=20.0.6
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.25.2
+ARG REDISSON_VER=3.26.0
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VER=0.14.0
 
 ## https://javaee.github.io/metro/download
-## https://maven.java.net/content/repositories/releases/org/glassfish/metro/metro-standalone/
-ARG METRO_VER=2.4.8
+## https://repo1.maven.org/maven2/org/glassfish/metro/metro-project/
+ARG METRO_VER=2.4.9
 
 ## https://javaee.github.io/jaxb-v2/
 ## https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-ri/
-ARG JAXB_VER=2.3.8
+ARG JAXB_VER=2.3.9
 
 ## https://javaee.github.io/javamail/
 ARG JAVAMAIL_VER=1.6.2
