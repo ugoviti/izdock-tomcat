@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.85-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.87-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -18,7 +18,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.85
+ARG APP_VER=9.0.87
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
