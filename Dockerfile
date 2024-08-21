@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.87-jdk11-temurin-jammy
+ARG IMAGE_FROM=tomcat:9.0.93-jdk11-temurin-jammy
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -9,7 +9,7 @@ ARG IMAGE_FROM=tomcat:9.0.87-jdk11-temurin-jammy
 
 FROM ${IMAGE_FROM}
 
-MAINTAINER Ugo Viti <ugo.viti@initzero.it>
+MAINTAINER Ugo Viti <u.viti@wearequantico.it>
 
 ### default app args used during build step
 #ARG APP_VER_MAJOR=
@@ -18,7 +18,7 @@ MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.87
+ARG APP_VER=9.0.93
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -42,24 +42,24 @@ ARG IZMYSQLSYNC_VER=2.0.3
 ENV TINI_VER 0.19.0
 
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VER=42.7.1
+ARG PGSQL_JDBC_VER=42.7.3
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=8.3.0
+ARG MYSQL_JDBC_VER=9.0.0
 
 ## https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15
-ARG MSSQL_JDBC_VER=12.4.2
+ARG MSSQL_JDBC_VER=12.8.0
 ## find MSSQL_JDBC_BASEURL downloading the tar.gz jdbc driver from the above url of microsoft web site
-ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/5/6/9/56904641-5f5a-449c-a284-36c36bc45652/enu
+ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/1f16ebca-a563-444b-ab48-a290d5ec4569/enu
 
 ## https://repo1.maven.org/maven2/net/sf/jt400/jt400
-ARG AS400_JDBC_VER=20.0.6
+ARG AS400_JDBC_VER=20.0.7
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.26.0
+ARG REDISSON_VER=3.34.1
 
 ## https://github.com/glowroot/glowroot/releases
-ARG GLOWROOT_VER=0.14.0
+ARG GLOWROOT_VER=0.14.2
 
 ## https://javaee.github.io/metro/download
 ## https://repo1.maven.org/maven2/org/glassfish/metro/metro-project/
