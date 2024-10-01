@@ -4,7 +4,7 @@ name: tomcat10-amd64
 
 environment:
   # https://hub.docker.com/_/tomcat
-  IMAGE_FROM: "tomcat:10.1.30-jdk17-temurin-noble"
+  IMAGE_FROM: "tomcat:10.1.30-jdk17-temurin-jammy"
   APP_VER: 10.1.30
 
 trigger:
@@ -99,7 +99,7 @@ name: tomcat9-amd64
 
 environment:
   # https://hub.docker.com/_/tomcat
-  IMAGE_FROM: "tomcat:9.0.95-jdk11-temurin-noble"
+  IMAGE_FROM: "tomcat:9.0.95-jdk11-temurin-jammy"
   APP_VER: 9.0.95
   ## stuck to 8.0.22 because error:
   ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2020-01-04T23:21:50
