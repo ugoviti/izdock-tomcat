@@ -4,7 +4,7 @@ ARG IMAGE_FROM=tomcat:9.0.95-jdk11-temurin-noble
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
-#ENV GOPATH /go
+#ENV GOPATH=/go
 #RUN go get -u github.com/googlecloudplatform/gcsfuse
 
 FROM ${IMAGE_FROM}
@@ -18,7 +18,7 @@ MAINTAINER Ugo Viti <u.viti@wearequantico.it>
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.93
+ARG APP_VER=9.0.95
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -28,18 +28,18 @@ ENV APP_VER=${APP_VER}
 #ENV APP_VER_PATCH="${APP_VER##*.}"
 
 ## components versions
-#ENV TOMCAT_VER_MAJOR  ${APP_VER_MAJOR}
-#ENV TOMCAT_VER_MINOR  ${APP_VER_MINOR}
-#ENV TOMCAT_VER_PATCH  ${APP_VER_PATCH}
-ENV TOMCAT_VER        ${APP_VER}
-#ENV TOMCAT_NATIVE_VER 1.2.19
+#ENV TOMCAT_VER_MAJOR=${APP_VER_MAJOR}
+#ENV TOMCAT_VER_MINOR=${APP_VER_MINOR}
+#ENV TOMCAT_VER_PATCH=${APP_VER_PATCH}
+ENV TOMCAT_VER=${APP_VER}
+#ENV TOMCAT_NATIVE_VER=1.2.19
 
 ## components app versions
 ## https://github.com/ugoviti/izmysqlsync
-ARG IZMYSQLSYNC_VER=2.0.3
+ARG IZMYSQLSYNC_VER=2.0.4
 
 # https://github.com/krallin/tini/releases
-ENV TINI_VER 0.19.0
+ENV TINI_VER=0.19.0
 
 ## https://jdbc.postgresql.org
 ARG PGSQL_JDBC_VER=42.7.4
@@ -88,48 +88,48 @@ ARG POI_VER=3.17
 ARG POI_VER_DATE=20170915
 
 ## debian specific
-ENV DEBIAN_FRONTEND       noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 ## app plugins enabled
-ENV APP_PLUGIN_PGSQL      1
-ENV APP_PLUGIN_MYSQL      1
-ENV APP_PLUGIN_MSSQL      1
-ENV APP_PLUGIN_AS400      1
-ENV APP_PLUGIN_GLOWROOT   1
-ENV APP_PLUGIN_METRO      1
-ENV APP_PLUGIN_JAXB       1
-ENV APP_PLUGIN_REDISSON   1
-ENV APP_PLUGIN_JAVAMAIL   1
-ENV APP_PLUGIN_JAVAXMAIL_API      1
-ENV APP_PLUGIN_JAVAX_ACTIVATION   1
-ENV APP_PLUGIN_JAKARTA_ACTIVATION 1
-ENV APP_PLUGIN_POI        1
+ENV APP_PLUGIN_PGSQL=1
+ENV APP_PLUGIN_MYSQL=1
+ENV APP_PLUGIN_MSSQL=1
+ENV APP_PLUGIN_AS400=1
+ENV APP_PLUGIN_GLOWROOT=1
+ENV APP_PLUGIN_METRO=1
+ENV APP_PLUGIN_JAXB=1
+ENV APP_PLUGIN_REDISSON=1
+ENV APP_PLUGIN_JAVAMAIL=1
+ENV APP_PLUGIN_JAVAXMAIL_API=1
+ENV APP_PLUGIN_JAVAX_ACTIVATION=1
+ENV APP_PLUGIN_JAKARTA_ACTIVATION=1
+ENV APP_PLUGIN_POI=1
 
 # generic app configuration variables
-ENV APP_NAME              "tomcat"
-ENV APP_DESCRIPTION       "Tomcat Web Application Server"
-ENV APP_HOME              "/usr/local/tomcat"
-ENV APP_CONF              ""
-ENV APP_DATA              ""
-ENV APP_LOGS              ""
-ENV APP_TEMP              ""
-ENV APP_WORK              ""
-ENV APP_SHARED            ""
-ENV APP_HTTP_PORT         8080
-ENV APP_AJP_PORT          8009
-ENV APP_SHUTDOWN_PORT     8005
-ENV APP_REMOTE_MANAGEMENT 1
-ENV APP_UID               91
-ENV APP_GID               91
-ENV APP_USR               "tomcat"
-ENV APP_GRP               "tomcat"
-ENV APP_ADMIN_USERNAME    "manager"
-ENV APP_ADMIN_PASSWORD    ""
+ENV APP_NAME="tomcat"
+ENV APP_DESCRIPTION="Tomcat Web Application Server"
+ENV APP_HOME="/usr/local/tomcat"
+ENV APP_CONF=""
+ENV APP_DATA=""
+ENV APP_LOGS=""
+ENV APP_TEMP=""
+ENV APP_WORK=""
+ENV APP_SHARED=""
+ENV APP_HTTP_PORT=8080
+ENV APP_AJP_PORT=8009
+ENV APP_SHUTDOWN_PORT=8005
+ENV APP_REMOTE_MANAGEMENT=1
+ENV APP_UID=91
+ENV APP_GID=91
+ENV APP_USR="tomcat"
+ENV APP_GRP="tomcat"
+ENV APP_ADMIN_USERNAME="manager"
+ENV APP_ADMIN_PASSWORD=""
 
 ## app specific variables
-ENV CATALINA_HOME "${APP_HOME}"
-ENV PATH          "${PATH}:${CATALINA_HOME}/bin"
-ENV UMASK         "0002"
+ENV CATALINA_HOME="${APP_HOME}"
+ENV PATH="${PATH}:${CATALINA_HOME}/bin"
+ENV UMASK="0002"
 
 ## define workdir
 WORKDIR ${CATALINA_HOME}
@@ -143,8 +143,8 @@ RUN set -xe && \
   TOMCAT_VER_MINOR="${TOMCAT_VER_SHORT##*.}" && \
   TOMCAT_VER_PATCH="${TOMCAT_VER##*.}" && \
   \
-  apt-get update && apt-get upgrade -y && \
-  apt-get install -y --no-install-recommends \
+  apt update && apt upgrade -y && \
+  apt install -y --no-install-recommends \
     bash \
     runit \
     procps \
@@ -164,7 +164,7 @@ RUN set -xe && \
     ca-certificates \
     gnupg \
     less \
-    netcat \
+    netcat-traditional \
     curl \
     mysql-client-core-8.0 \
     sudo \
@@ -175,7 +175,7 @@ RUN set -xe && \
     && \
   # install tini as init container
   if [ ${TOMCAT_VER_MAJOR} \> 8 ]; then \
-      apt-get install -y --no-install-recommends tini; \
+      apt install -y --no-install-recommends tini; \
     else \
       curl -fSL --connect-timeout 10 http://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER-amd64.deb -o tini_$TINI_VER-amd64.deb && \
       dpkg -i tini_$TINI_VER-amd64.deb && \
@@ -278,7 +278,7 @@ RUN set -xe && \
   cd / && \
   \
   # cleanup system
-  apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
+  apt purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
   rm -rf /var/lib/apt/lists/* /tmp/*
 
 # verify Tomcat Native is working properly
@@ -341,19 +341,19 @@ EXPOSE 8080/tcp 8009/tcp
 ADD Dockerfile filesystem README.md /
 
 # app specific variables
-ENV JAVA_OPTS     "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -XshowSettings:vm -XX:-HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -XX:+PreferContainerQuotaForCPUCount -XX:+UseCodeCacheFlushing -XX:+UseStringDeduplication -XX:+OptimizeStringConcat"
+ENV JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -XshowSettings:vm -XX:-HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -XX:+PreferContainerQuotaForCPUCount -XX:+UseCodeCacheFlushing -XX:+UseStringDeduplication -XX:+OptimizeStringConcat"
 ## for jmx support add
-#ENV JAVA_OPTS     "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345"
+#ENV JAVA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345"
 ## for changing GarbageCollector and memory constraints
-#ENV JAVA_OPTS     "-XX:+UseG1GC -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
+#ENV JAVA_OPTS="-XX:+UseG1GC -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -Xms512m -Xmx512m"
 ## for definig tomcat's extra args use CATALINA_OPTS var
-#ENV CATALINA_OPTS "-javaagent:$CATALINA_HOME/glowroot/glowroot.jar"
+#ENV CATALINA_OPTS="-javaagent:$CATALINA_HOME/glowroot/glowroot.jar"
 
 ## container pre-entrypoint variables
-ENV APP_RUNAS          "true"
-ENV MULTISERVICE       "false"
-ENV ENTRYPOINT_TINI    "true"
-ENV UMASK              0002
+ENV APP_RUNAS="true"
+ENV MULTISERVICE="false"
+ENV ENTRYPOINT_TINI="true"
+ENV UMASK=0002
 
 ## CI args
 ARG APP_VER_BUILD
@@ -361,9 +361,9 @@ ARG APP_BUILD_COMMIT
 ARG APP_BUILD_DATE
 
 ## define other build variables
-ENV APP_VER_BUILD    "${APP_VER_BUILD}"
-ENV APP_BUILD_COMMIT "${APP_BUILD_COMMIT}"
-ENV APP_BUILD_DATE   "${APP_BUILD_DATE}"
+ENV APP_VER_BUILD="${APP_VER_BUILD}"
+ENV APP_BUILD_COMMIT="${APP_BUILD_COMMIT}"
+ENV APP_BUILD_DATE="${APP_BUILD_DATE}"
 
 ## start the entrypoint process
 ENTRYPOINT ["/entrypoint.sh"]
