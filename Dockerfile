@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.95-jre11-temurin-noble
+ARG IMAGE_FROM=tomcat:9.0.96-jre11-temurin-noble
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -18,7 +18,7 @@ LABEL maintainer="Ugo Viti <u.viti@wearequantico.it>"
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.95
+ARG APP_VER=9.0.96
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -56,7 +56,7 @@ ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/1e09cdd5-9901-4bb
 ARG AS400_JDBC_VER=20.0.7
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.36.0
+ARG REDISSON_VER=3.37.0
 
 ## https://github.com/glowroot/glowroot/releases
 ARG GLOWROOT_VER=0.14.2
