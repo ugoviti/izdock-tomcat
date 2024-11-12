@@ -194,7 +194,7 @@ RUN set -xe && \
   if [ $APP_PLUGIN_MYSQL = 1 ]; then \
     if [ $MYSQL_JDBC_VER \> 9.0.0 ]; then \
       curl -fSL --connect-timeout 10 "https://cdn.mysql.com/Downloads/Connector-J/mysql-connector-j-${MYSQL_JDBC_VER}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-j-${MYSQL_JDBC_VER}.jar"; \
-    if [ $MYSQL_JDBC_VER \> 8.2.0 ]; then \
+    elif [ $MYSQL_JDBC_VER \> 8.2.0 ]; then \
       curl -fSL --connect-timeout 10 "https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-${MYSQL_JDBC_VER}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-j-${MYSQL_JDBC_VER}.jar"; \
      else \
       curl -fSL --connect-timeout 10 "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_JDBC_VER}.tar.gz" | tar xz --wildcards --strip 1 -C "${CATALINA_HOME}/lib/" "*/mysql-connector-java-${MYSQL_JDBC_VER}.jar"; \
