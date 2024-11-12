@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.96-jre11-temurin-noble
+ARG IMAGE_FROM=tomcat:9.0.97-jre11-temurin-noble
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -18,7 +18,7 @@ LABEL maintainer="Ugo Viti <u.viti@wearequantico.it>"
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.96
+ARG APP_VER=9.0.97
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -45,7 +45,7 @@ ENV TINI_VER=0.19.0
 ARG PGSQL_JDBC_VER=42.7.4
 
 ## https://dev.mysql.com/downloads/connector/j
-ARG MYSQL_JDBC_VER=9.0.0
+ARG MYSQL_JDBC_VER=8.2.0
 
 ## https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15#available-languages
 ARG MSSQL_JDBC_VER=12.8.1
