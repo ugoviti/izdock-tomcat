@@ -4,8 +4,8 @@ name: tomcat10-amd64
 
 environment:
   # https://hub.docker.com/_/tomcat
-  IMAGE_FROM: "tomcat:10.1.36-jre17-temurin-noble"
-  APP_VER: 10.1.36
+  IMAGE_FROM: "tomcat:10.1.41-jre17-temurin-noble"
+  APP_VER: 10.1.41
 
 trigger:
   event:
@@ -99,8 +99,8 @@ name: tomcat9-amd64
 
 environment:
   # https://hub.docker.com/_/tomcat
-  IMAGE_FROM: "tomcat:9.0.102-jre11-temurin-noble"
-  APP_VER: 9.0.102
+  IMAGE_FROM: "tomcat:9.0.105-jre11-temurin-noble"
+  APP_VER: 9.0.105
   ## stuck to 8.0.22 because error:
   ## [IDVariant::convertObject] Cannot convert from class: java.time.LocalDateTime, object is 2020-01-04T23:21:50
   #MYSQL_JDBC_VER: 8.0.22
