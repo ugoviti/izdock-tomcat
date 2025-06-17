@@ -1,6 +1,6 @@
 # https://tomcat.apache.org/
 # https://hub.docker.com/_/tomcat
-ARG IMAGE_FROM=tomcat:9.0.105-jre11-temurin-noble
+ARG IMAGE_FROM=tomcat:9.0.106-jre11-temurin-noble
 
 #FROM golang:1.10.3 AS gcsfuse
 #RUN apk add --no-cache git
@@ -18,7 +18,7 @@ LABEL maintainer="Ugo Viti <u.viti@wearequantico.it>"
 
 ### full app version
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
-ARG APP_VER=9.0.105
+ARG APP_VER=9.0.106
 ENV APP_VER=${APP_VER}
 
 ## FIXME this format is not supported by Dockerfile find an automatic way
@@ -42,7 +42,7 @@ ARG IZMYSQLSYNC_VER=2.0.4
 ENV TINI_VER=0.19.0
 
 ## https://jdbc.postgresql.org
-ARG PGSQL_JDBC_VER=42.7.5
+ARG PGSQL_JDBC_VER=42.7.7
 
 ## https://dev.mysql.com/downloads/connector/j
 ARG MYSQL_JDBC_VER=8.2.0
@@ -56,10 +56,10 @@ ENV MSSQL_JDBC_BASEURL=https://download.microsoft.com/download/1e09cdd5-9901-4bb
 ARG AS400_JDBC_VER=20.0.8
 
 ## https://github.com/redisson/redisson/releases
-ARG REDISSON_VER=3.45.0
+ARG REDISSON_VER=3.50.0
 
 ## https://github.com/glowroot/glowroot/releases
-ARG GLOWROOT_VER=0.14.2
+ARG GLOWROOT_VER=0.14.4
 
 ## https://javaee.github.io/metro/download
 ## https://repo1.maven.org/maven2/org/glassfish/metro/metro-project/
