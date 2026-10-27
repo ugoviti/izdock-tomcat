@@ -116,6 +116,10 @@ Check for updates and apply them to versions.env (versions and sha256):
 tools/make-updates.sh           # report only (exit 10 = updates available)
 tools/make-updates.sh --apply   # rewrite versions.env, then rebuild and test
 ```
+Every component stays on its major version (a new major is only reported). To keep a component on
+a given version add a `<NAME>_PIN=<version>` line next to its `<NAME>_VER` (eg. `MYSQL_JDBC_PIN=8.2.0`)
+and run `tools/make-updates.sh --apply`: the version and its sha256 are set, and updates never move it.
+Remove the line to unpin.
 
 Lint (shellcheck, hadolint) and the pre-commit hook (lint + gitleaks):
 ```
@@ -130,6 +134,26 @@ git config core.hooksPath .githooks
   published: gitleaks scan, then the commit is pushed to GitHub (the only way code reaches GitHub).
 - `tomcat-promote`: manual, publishes again on Docker Hub an image already in the Gitea registry.
 - `lint`, `gitleaks`: on every push.
+
+A commit message containing `[skip ci]` does not start the workflows (then run `tomcat-build` by hand).
+
+## Setup
+Repository or organization **Settings > Actions** (organization level: shared by every repository):
+
+| Name | Kind | Value |
+|---|---|---|
+| `REGISTRY_HOST` | secret or variable | Gitea host of the private registry (no `https://`) |
+| `REGISTRY_USERNAME` | secret | Gitea user allowed to write the packages of the owner |
+| `REGISTRY_TOKEN` | secret | Gitea token of that user, scope *package: Read and Write* |
+| `DOCKER_USERNAME` | secret | Docker Hub user with write access to `izdock/tomcat` |
+| `DOCKER_PASSWORD` | secret | Docker Hub personal access token, *Read & Write* |
+| `GH_PUSH_TOKEN` | secret | GitHub fine-grained token, `ugoviti/izdock-tomcat` only, *Contents: Read and write* |
+| `MATRIX_PASSWORD` | secret | password of the Matrix notification bot |
+| `MATRIX_HOMESERVER`, `MATRIX_ROOM_ID`, `MATRIX_USER` | variables | Matrix homeserver URL, room id, bot user id |
+| `GITLEAKS_CONFIG` | secret, optional | private gitleaks rules (TOML), starting with `[extend]` `path = ".gitleaks.toml"` |
+
+The image is pushed to `<REGISTRY_HOST>/initzero/tomcat` (see `.gitea/actions/registry-login`), the build
+cache to its `buildcache-<variant>` tags. Runner label: `ubuntu-latest`, with Docker.
 
 # Quick reference
 
