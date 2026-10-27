@@ -10,10 +10,23 @@
 # Tags (.gitea/actions/image-tags): X.Y.Z, X.Y, X, X.Y.Z-<run_number> [, latest on the 9 variant]
 # To publish again an image already in the Gitea registry: tomcat-promote (manual).
 #
-# Required secrets:   REGISTRY_HOST (or variable), REGISTRY_USERNAME, REGISTRY_TOKEN,
-#                     DOCKER_USERNAME, DOCKER_PASSWORD, GH_PUSH_TOKEN, MATRIX_PASSWORD
-# Optional secret:    GITLEAKS_CONFIG (private gitleaks rules)
-# Required variables: MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER
+# A commit message with [skip ci] starts no workflow (then run tomcat-build by hand).
+#
+# Setup: Settings > Actions of the repository or of the organization (shared by its repositories);
+# a repository secret wins over the organization one with the same name.
+#   REGISTRY_HOST       secret or variable  host of the private Gitea registry (no https://);
+#                                           image <host>/initzero/tomcat (.gitea/actions/registry-login),
+#                                           build cache in its buildcache-<variant> tags
+#   REGISTRY_USERNAME   secret  Gitea user allowed to write the packages of the owner
+#   REGISTRY_TOKEN      secret  Gitea token of that user, scope package: Read and Write
+#   DOCKER_USERNAME     secret  Docker Hub user with write access to izdock/tomcat
+#   DOCKER_PASSWORD     secret  Docker Hub personal access token, Read & Write
+#   GH_PUSH_TOKEN       secret  GitHub fine-grained token, ugoviti/izdock-tomcat only, Contents: Read and write
+#   MATRIX_PASSWORD     secret  password of the Matrix bot
+#   MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER   variables  Matrix homeserver URL, room id, bot user id
+#   GITLEAKS_CONFIG     secret, optional  private gitleaks rules (TOML) extending the repository ones:
+#                                           [extend] path = ".gitleaks.toml"
+# Runner label: ubuntu-latest, with Docker. The Docker Hub description is updated by hand from README.md.
 
 name: tomcat-build
 

@@ -1,181 +1,162 @@
-# Description
-Production ready Apache Tomcat Java Servlet Application Server
+# izdock/tomcat
+Production ready Apache Tomcat image: the [official Tomcat image](https://hub.docker.com/_/tomcat)
+(Eclipse Temurin JRE, Ubuntu) with JDBC drivers, monitoring and the most used Java libraries
+already included, a configurable entrypoint and persistent data management.
 
 # Supported tags
-- `9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest` (JRE 11)
-- `10.1.X-BUILD`, `10.1.X`, `10.1`, `10` (JRE 17)
+| Tags | Tomcat | Java |
+|---|---|---|
+| `9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest` | 9.0 | Temurin JRE 11 |
+| `10.1.X-BUILD`, `10.1.X`, `10.1`, `10` | 10.1 | Temurin JRE 17 |
 
-Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
+**X** is the Tomcat patch version, **BUILD** the build number: see the
+[tags page](https://hub.docker.com/r/izdock/tomcat/tags) for the latest ones.
+Images are rebuilt every week with the latest OS security updates, so the `X.Y.Z`, `X.Y` and `X`
+tags always point to a patched image; `X.Y.Z-BUILD` never changes.
 
-# Dockerfile
-- https://github.com/ugoviti/izdock-tomcat/blob/master/Dockerfile
+Architecture: `amd64`.
 
 # Features
-- Small image footprint (based on [Linux Debian](/_/debian/) image)
-- OpenJDK 11 for Tomcat 9.x
-- OpenJDK 1.8 for Tomcat 8.x
-- OpenJDK 1.7 for Tomcat 7.x
-- APR Native Libraries compiled
-- Many customizable variables to use
-- Included MySQL Connector 8.x
-- Included AS400 Connector 10.x
-- GCSFuse support to mount Google Cloud Bucket share
-- Using [tini](https://github.com/krallin/tini) as init process
+- Based on the official Tomcat image, with the Apache Tomcat Native (APR) library
+- [tini](https://github.com/krallin/tini) as init process, Tomcat running as the unprivileged `tomcat` user
+- Admin user and Tomcat Manager configured from environment variables
+- Persistent configuration, webapps, logs and shared libraries on any mounted path
+- Every included component is pinned and verified by sha256 at build time
 
-# What is Tomcat?
-The Apache Tomcat® software is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies. The Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket specifications are developed under the Java Community Process.
+## Included components
+Installed in `/usr/local/tomcat/lib` (each one can be disabled at build time, see `APP_PLUGIN_*`):
 
-The Apache Tomcat software is developed in an open and participatory environment and released under the Apache License version 2. The Apache Tomcat project is intended to be a collaboration of the best-of-breed developers from around the world. We invite you to participate in this open development project. To learn more about getting involved, click here.
+| Component | Use |
+|---|---|
+| PostgreSQL JDBC driver | PostgreSQL databases |
+| MySQL Connector/J | MySQL / MariaDB databases |
+| Microsoft JDBC Driver for SQL Server (jre11) | SQL Server databases |
+| JTOpen (jt400) | IBM i (AS/400) databases |
+| Redisson (`redisson-all` + `redisson-tomcat-<major>`) | HTTP sessions stored in Redis |
+| Glowroot (`/usr/local/tomcat/glowroot`) | JVM and application monitoring (APM) |
+| Metro web services (`webservices-*`), JAXB RI | SOAP web services, XML binding (javax) |
+| JavaMail, javax.mail-api, javax.activation-api, jakarta.activation | mail and activation |
+| Apache POI (`poi`, `poi-ooxml`, `poi-excelant`) | Microsoft Office documents |
 
-Apache Tomcat software powers numerous large-scale, mission-critical web applications across a diverse range of industries and organizations. Some of these users and their stories are listed on the PoweredBy wiki page.
+Metro, JAXB, JavaMail and the activation APIs are the `javax.*` versions, for `javax` applications
+(Tomcat 9). Tomcat 10.1 is Jakarta EE (`jakarta.*`): `jakarta` applications bring their own libraries
+and do not use them.
 
-> [wikipedia.org/wiki/Apache_Tomcat](http://en.wikipedia.org/wiki/Apache_Tomcat)
+Tools: `mysql` / `mysqldump` client, [izmysqlsync](https://github.com/ugoviti/izmysqlsync),
+`curl`, `rsync`, `lftp`, `openssh-client`, `imagemagick`, `graphviz`.
 
-![logo](http://tomcat.apache.org/res/images/tomcat.png)
+The exact versions of every image are listed in
+[versions.env](https://github.com/ugoviti/izdock-tomcat/blob/master/versions.env), and inside the
+container in `/usr/src/tomcat/versions.env`.
 
 # How to use this image
-
-```docker pull izdock/tomcat```
-
-```docker run -it --rm izdock/tomcat```
-
-You can test it by visiting http://container-ip:8080 in a browser
-
-If you need access outside the host, on port 8888:
 ```
-docker run -it --rm --name tomcat -p 8888:8080 tomcat
+docker run -d --name tomcat -p 8080:8080 izdock/tomcat
 ```
+Then open http://localhost:8080 (or http://host-ip:8080).
 
-You can then go to http://localhost:8888 or http://host-ip:8888 in a browser.
+On the first start, when `APP_ADMIN_PASSWORD` is not set, a random password is generated for the
+admin user and printed in the container log (`docker logs tomcat`).
 
-Persistent data and shared directory:
+## Persistent data
+Set the paths where configuration, webapps and shared files must live, and mount a volume there.
+On the first start the default content is copied into the empty directories:
 ```
-docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=adm.tomcat -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_DATA=/data/tomcat/webapps -e APP_SHARED=/data/tomcat/shared -v /tmp/tomcat:/data --name tomcat izdock/tomcat
-```
-
-Other examples:
-```
-docker run -it --rm -p 8080:8080 -e APP_ADMIN_USERNAME=adm.tomcat -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e APP_DATA=/data/tomcat/webapps -e APP_SHARED=/data/tomcat/shared -v /tmp/tomcat:/data --name tomcat izdock/tomcat
+docker run -d --name tomcat -p 8080:8080 \
+  -e APP_ADMIN_USERNAME=admin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD \
+  -e APP_CONF=/data/tomcat/conf \
+  -e APP_DATA=/data/tomcat/webapps \
+  -e APP_SHARED=/data/tomcat/shared \
+  -v /srv/tomcat:/data \
+  izdock/tomcat:9
 ```
 
-More complex example:
+## Java options and monitoring
+`JAVA_OPTS` holds the default JVM options of the image (container aware, UTF-8, headless);
+put your own options in `CATALINA_OPTS`. Example with time zone, heap sizing, JMX and the
+Glowroot agent (web UI on port 4000):
 ```
-docker run -it --rm -p 8080:8080 -p 4000:4000  --name tomcat9 -e APP_ADMIN_USERNAME=tomcatadmin -e APP_ADMIN_PASSWORD=VeryStrong4ndSecurePWD -e CATALINA_OPTS="-server -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:MaxRAMPercentage=75.0 -XX:MinHeapFreeRatio=25 -XX:MaxHeapFreeRatio=50 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:NewRatio=3 -XX:SurvivorRatio=6 -XX:ReservedCodeCacheSize=320M -XX:+UseCodeCacheFlushing" -e JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Duser.timezone=Europe/Rome -Duser.language=it -Duser.region=IT -Dorg.apache.catalina.security.SecurityListener.UMASK=0002 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=12345 -XX:-HeapDumpOnOutOfMemoryError -javaagent:/usr/local/tomcat/glowroot/glowroot.jar" izdock/tomcat:9.0.37
+docker run -d --name tomcat -p 8080:8080 -p 4000:4000 \
+  -e TZ=Europe/Rome \
+  -e CATALINA_OPTS="-XX:MaxRAMPercentage=75.0 -Duser.timezone=Europe/Rome -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12345 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -javaagent:/usr/local/tomcat/glowroot/glowroot.jar" \
+  izdock/tomcat:9
 ```
+
+## Custom image
+```dockerfile
+FROM izdock/tomcat:9
+COPY ./conf /usr/local/tomcat/conf
+COPY ./myapp.war /usr/local/tomcat/webapps/
+```
+`/opt/tomcat` is a link to `/usr/local/tomcat`.
 
 # Environment variables
 
-## generic app configuration variables
-```
-ENV APP_NAME              "tomcat"
-ENV APP_DESCRIPTION       "Tomcat Web Application Server"
-ENV APP_HOME              "/usr/local/tomcat"
-ENV APP_CONF              ""
-ENV APP_DATA              ""
-ENV APP_LOGS              ""
-ENV APP_TEMP              ""
-ENV APP_WORK              ""
-ENV APP_HTTP_PORT         8080
-ENV APP_AJP_PORT          8009
-ENV APP_SHUTDOWN_PORT     8005
-ENV APP_REMOTE_MANAGEMENT 1
-ENV APP_UID               91
-ENV APP_GID               91
-ENV APP_USR               "tomcat"
-ENV APP_GRP               "tomcat"
-ENV APP_ADMIN_USERNAME    "manager"
-ENV APP_ADMIN_PASSWORD    ""
-```
+## Tomcat and admin user
+| Variable | Default | Description |
+|---|---|---|
+| `APP_ADMIN_USERNAME` | `manager` | user created in `tomcat-users.xml` with the manager and admin roles |
+| `APP_ADMIN_PASSWORD` | random | its password; when empty a random one is printed in the log |
+| `APP_REMOTE_MANAGEMENT` | `1` | `1` allows the Tomcat Manager from any address, `0` keeps the Tomcat default (localhost only) |
+| `JAVA_OPTS` | see the image | default JVM options of the image |
+| `CATALINA_OPTS` | | your JVM and Tomcat options |
+| `TZ` | `UTC` | container time zone (eg. `Europe/Rome`) |
+| `UMASK` | `0002` | umask of the Tomcat process and of the files it creates |
 
-## specific app configuration variables
-```
-ENV JAVA_OPTS     "-Djava.awt.headless=true -XX:+UseG1GC -Dfile.encoding=UTF-8 -server -Xms128m -Xmx512m"
-ENV CATALINA_HOME "${APP_HOME}"
-ENV PATH          "${PATH}:/opt/jdk/bin:${CATALINA_HOME}/bin"
-ENV UMASK         "0002"
-```
+The configuration hooks (admin user, Manager access, connector limits) run only once: when `APP_CONF`
+is persistent, a `.initialized` file in it keeps them from running again.
 
-### Configuration
-To customize the configuration just `COPY` your custom configuration in `/opt/tomcat/conf`.
+## Persistent directories
+Each variable, when set, moves the directory to that path (a symlink from the default path):
 
-```dockerfile
-FROM izdock/tomcat
-COPY ./conf /opt/tomcat/conf
+| Variable | Default path |
+|---|---|
+| `APP_CONF` | `/usr/local/tomcat/conf` |
+| `APP_DATA` | `/usr/local/tomcat/webapps` |
+| `APP_LOGS` | `/usr/local/tomcat/logs` |
+| `APP_TEMP` | `/usr/local/tomcat/temp` |
+| `APP_WORK` | `/usr/local/tomcat/work` |
+| `APP_SHARED` | `/usr/local/tomcat/shared` (`classes`, `lib`, `fonts`, `conf`) |
+
+## Process
+| Variable | Default | Description |
+|---|---|---|
+| `APP_RUNAS` | `true` | run Tomcat as the `tomcat` user (uid/gid `91`) |
+| `ENTRYPOINT_TINI` | `true` | run the command through tini |
+| `MULTISERVICE` | `false` | `true` starts the runit services of `/etc/service` instead of the command |
+| `CMD_OVERRIDE` | | command run instead of the default `catalina.sh run` |
+
+Exposed ports: `8080` (HTTP), `8009` (AJP).
+
+# Build
+Every component version and its sha256 is in
+[versions.env](https://github.com/ugoviti/izdock-tomcat/blob/master/versions.env), the single source
+of truth of the build. One variant per Tomcat major:
 ```
-# Build commands
-Every component version (base image, JDBC drivers, jars, tools) and its sha256 is in
-[versions.env](versions.env), the single source of truth read by the build and by CI.
-One variant per Tomcat major (`TOMCAT9_*`, `TOMCAT10_*`):
-```
+git clone https://github.com/ugoviti/izdock-tomcat.git && cd izdock-tomcat
 tools/build.sh 9        # -> izdock/tomcat:local-9
 tools/build.sh 10       # -> izdock/tomcat:local-10
 ```
+To leave out a component, set its `APP_PLUGIN_<NAME>=0` in the Dockerfile.
 
-Check for updates and apply them to versions.env (versions and sha256):
+Check upstream for new versions and update versions.env (versions and sha256):
 ```
-tools/make-updates.sh           # report only (exit 10 = updates available)
-tools/make-updates.sh --apply   # rewrite versions.env, then rebuild and test
+tools/make-updates.sh           # report only
+tools/make-updates.sh --apply   # update versions.env, then build and test
 ```
-Every component stays on its major version (a new major is only reported). To keep a component on
-a given version add a `<NAME>_PIN=<version>` line next to its `<NAME>_VER` (eg. `MYSQL_JDBC_PIN=8.2.0`)
-and run `tools/make-updates.sh --apply`: the version and its sha256 are set, and updates never move it.
-Remove the line to unpin.
-
-Lint (shellcheck, hadolint) and the pre-commit hook (lint + gitleaks):
-```
-tools/lint.sh
-git config core.hooksPath .githooks
-```
-
-# CI (Gitea Actions)
-- `tomcat-build` ([.gitea/workflows/build.yml](.gitea/workflows/build.yml)): on push to master, every Monday
-  (weekly rebuild for OS security updates) and by hand. Builds every variant into the Gitea registry,
-  verifies the image, then copies the same digest to Docker Hub `izdock/tomcat`. When every variant is
-  published: gitleaks scan, then the commit is pushed to GitHub (the only way code reaches GitHub).
-- `tomcat-promote`: manual, publishes again on Docker Hub an image already in the Gitea registry.
-- `lint`, `gitleaks`: on every push.
-
-A commit message containing `[skip ci]` does not start the workflows (then run `tomcat-build` by hand).
-
-## Setup
-Repository or organization **Settings > Actions** (organization level: shared by every repository):
-
-| Name | Kind | Value |
-|---|---|---|
-| `REGISTRY_HOST` | secret or variable | Gitea host of the private registry (no `https://`) |
-| `REGISTRY_USERNAME` | secret | Gitea user allowed to write the packages of the owner |
-| `REGISTRY_TOKEN` | secret | Gitea token of that user, scope *package: Read and Write* |
-| `DOCKER_USERNAME` | secret | Docker Hub user with write access to `izdock/tomcat` |
-| `DOCKER_PASSWORD` | secret | Docker Hub personal access token, *Read & Write* |
-| `GH_PUSH_TOKEN` | secret | GitHub fine-grained token, `ugoviti/izdock-tomcat` only, *Contents: Read and write* |
-| `MATRIX_PASSWORD` | secret | password of the Matrix notification bot |
-| `MATRIX_HOMESERVER`, `MATRIX_ROOM_ID`, `MATRIX_USER` | variables | Matrix homeserver URL, room id, bot user id |
-| `GITLEAKS_CONFIG` | secret, optional | private gitleaks rules (TOML), starting with `[extend]` `path = ".gitleaks.toml"` |
-
-The image is pushed to `<REGISTRY_HOST>/initzero/tomcat` (see `.gitea/actions/registry-login`), the build
-cache to its `buildcache-<variant>` tags. Runner label: `ubuntu-latest`, with Docker.
+Every component stays on its major version: a new major is only reported. To keep a component on a
+given version add `<NAME>_PIN=<version>` next to its `<NAME>_VER` in versions.env
+(eg. `MYSQL_JDBC_PIN=8.2.0`) and run `tools/make-updates.sh --apply`.
 
 # Quick reference
-
--	**Where to get help**:
-	[InitZero Corporate Support](https://www.initzero.it/)
-
--	**Where to file issues**:
-	[https://github.com/ugoviti](https://github.com/ugoviti)
-
--	**Maintained by**:
-	[Ugo Viti](https://github.com/ugoviti)
-
--	**Supported architectures**:
-	[`amd64`]
-
--	**Supported Docker versions**:
-	[the latest release](https://github.com/docker/docker-ce/releases/latest) (down to 1.6 on a best-effort basis)
+- **Source code and issues**: [github.com/ugoviti/izdock-tomcat](https://github.com/ugoviti/izdock-tomcat)
+- **Maintained by**: [Ugo Viti](https://github.com/ugoviti)
+- **Support**: [InitZero](https://www.initzero.it/)
 
 # License
+Apache Tomcat is released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
-View [Apache license information](https://www.apache.org/licenses/) and for the software contained in this image.
-
-As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
-
-As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
+As with all Docker images, this one also contains other software which may be under other licenses
+(such as Bash and the other packages of the base distribution, and the included Java libraries).
+As for any pre-built image usage, it is the image user's responsibility to ensure that any use of
+this image complies with any relevant licenses for all software contained within.
