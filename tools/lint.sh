@@ -44,7 +44,7 @@ hadolint=$(tool hadolint "$HADOLINT_VER" "$HADOLINT_SHA256" \
 # filesystem/ (the runtime entrypoint scripts) is not linted yet: ~30 legacy findings,
 # mostly false positives of the eval idioms; add it here once cleaned up
 mapfile -t sh_files < <({
-  find build tools .gitea/actions -type f -name '*.sh'
+  find build tools .gitea/actions .gitea/scripts -type f -name '*.sh'
   find .githooks -type f
 } | sort -u)
 

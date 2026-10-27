@@ -20,8 +20,8 @@
 # invalid). Then: tools/build.sh 9 && tools/build.sh 10, test, commit.
 #
 # Exit code: 0 all current (or, with --apply, updates applied), 10 updates
-# available, 2 incomplete (lookups unavailable), 1 error. GITHUB_TOKEN
-# (optional) raises the GitHub API rate limit (60 requests/hour without it).
+# available, 2 incomplete (lookups unavailable), 1 error. GITHUB_API_TOKEN
+# (optional, a GitHub token: never the Gitea one) raises the GitHub API rate limit (60 requests/hour without it).
 # Requires: curl, jq, sha256sum.
 
 set -Eeuo pipefail
@@ -80,7 +80,7 @@ fetch() {
 # sha256 of a download; empty when the download fails (never the sha256 of an empty file)
 sha_of() { local t; t=$(mktemp); if fetch -o "$t" "$1"; then sha256sum "$t" | cut -d' ' -f1; fi; rm -f "$t"; }
 
-gh_api() { fetch ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} -H 'Accept: application/vnd.github+json' "https://api.github.com/$1"; }
+gh_api() { fetch ${GITHUB_API_TOKEN:+-H "Authorization: Bearer $GITHUB_API_TOKEN"} -H 'Accept: application/vnd.github+json' "https://api.github.com/$1"; }
 gh_latest_release() { local j; j=$(gh_api "repos/$1/releases/latest") || return 1; jq -r '.tag_name // empty' <<< "$j"; }
 gh_latest_tag() { local j; j=$(gh_api "repos/$1/tags?per_page=100") || return 1; jq -r '.[].name' <<< "$j" | grep -E '^v?[0-9]+(\.[0-9]+)*$' | sort -V | tail -1; }
 
