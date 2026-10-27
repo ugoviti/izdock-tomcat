@@ -3,7 +3,7 @@
 # that add secrets or private infrastructure references.
 #
 # enable once per clone:  git config core.hooksPath .githooks
-# private extra rules:    ~/.config/gitleaks/izdock.toml (outside the repo, same content as the
+# private extra rules:    ~/.config/gitleaks/izdock.toml (outside the repo, [extend] path = ".gitleaks.toml", same content as the
 #                         Gitea secret GITLEAKS_CONFIG). Override path with GITLEAKS_IZDOCK_CONFIG.
 # bypass (emergency only): git commit --no-verify
 #
@@ -49,6 +49,9 @@ fi
 ARGS=(git --pre-commit --staged --redact --verbose --no-banner)
 if [ -f "$CONFIG" ]; then
   ARGS+=(--config "$CONFIG")
+elif [ -f "$ROOT/.gitleaks.toml" ]; then
+  echo "gitleaks: WARNING private rules not found ($CONFIG), using .gitleaks.toml only" >&2
+  ARGS+=(--config "$ROOT/.gitleaks.toml")
 else
   echo "gitleaks: WARNING private rules not found ($CONFIG), using default rules only" >&2
 fi
