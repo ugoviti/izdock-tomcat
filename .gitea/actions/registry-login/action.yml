@@ -3,7 +3,7 @@ description: Setup buildx and log in to the private Gitea registry and, optional
 
 inputs:
   registry-host:
-    description: Private registry host, from secrets.REGISTRY_HOST (a secret so it is masked in job logs)
+    description: Private registry host, from secrets.REGISTRY_HOST or vars.REGISTRY_HOST (masked in job logs)
     required: true
   registry-repository:
     description: Image path inside the private registry (owner/name)
@@ -34,6 +34,11 @@ runs:
         REGISTRY_REPOSITORY: ${{ inputs.registry-repository }}
       run: |
         set -eu
+        # an empty host would make docker/login-action fall back to Docker Hub with the Gitea credentials
+        if [ -z "$REGISTRY_HOST" ]; then
+          echo "::error::REGISTRY_HOST is empty: define it as an Actions secret or variable (repository or organization), eg. git.quantico.srl"
+          exit 1
+        fi
         echo "::add-mask::${REGISTRY_HOST}"
         echo "image=${REGISTRY_HOST}/${REGISTRY_REPOSITORY}" >> "$GITHUB_OUTPUT"
 

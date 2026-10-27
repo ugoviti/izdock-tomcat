@@ -6,7 +6,7 @@
 # (same digest that was verified). Tag scheme: .gitea/actions/image-tags
 #   source 9.0.120-57 -> 9.0.120, 9.0, 9, 9.0.120-57 [, latest]
 #
-# Required secrets:   REGISTRY_HOST, REGISTRY_USERNAME, REGISTRY_TOKEN, DOCKER_USERNAME,
+# Required secrets:   REGISTRY_HOST (or variable), REGISTRY_USERNAME, REGISTRY_TOKEN, DOCKER_USERNAME,
 #                     DOCKER_PASSWORD, MATRIX_PASSWORD
 # Required variables: MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER
 
@@ -55,7 +55,7 @@ jobs:
         id: login
         uses: ./.gitea/actions/registry-login
         with:
-          registry-host: ${{ secrets.REGISTRY_HOST }}
+          registry-host: ${{ secrets.REGISTRY_HOST || vars.REGISTRY_HOST }}
           registry-username: ${{ secrets.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.REGISTRY_TOKEN }}
           dockerhub-username: ${{ secrets.DOCKER_USERNAME }}
