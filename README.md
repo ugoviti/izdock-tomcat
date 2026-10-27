@@ -2,9 +2,8 @@
 Production ready Apache Tomcat Java Servlet Application Server
 
 # Supported tags
-- `9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest`
-- `8.5.X-BUILD`, `8.5.X`, `8.5`, `8`
-- `7.0.X-BUILD`, `7.0.X`, `7.0`, `7`
+- `9.0.X-BUILD`, `9.0.X`, `9.0`, `9`, `latest` (JRE 11)
+- `10.1.X-BUILD`, `10.1.X`, `10.1`, `10` (JRE 17)
 
 Where **X** is the patch version number, and **BUILD** is the build number (look into project [Tags](/repository/docker/izdock/tomcat/tags/) page to discover the latest versions)
 
@@ -104,14 +103,32 @@ FROM izdock/tomcat
 COPY ./conf /opt/tomcat/conf
 ```
 # Build commands
+Every component version (base image, JDBC drivers, jars, tools) and its sha256 is in
+[versions.env](versions.env), the single source of truth read by the build and by CI.
+One variant per Tomcat major (`TOMCAT9_*`, `TOMCAT10_*`):
 ```
-docker build -t tomcat .
+tools/build.sh 9        # -> izdock/tomcat:local-9
+tools/build.sh 10       # -> izdock/tomcat:local-10
 ```
 
-Or overriding some options:
+Check for updates and apply them to versions.env (versions and sha256):
 ```
-docker build --rm=true --pull=true --build-arg IMAGE_FROM=tomcat:10.1.4-jdk17-temurin-jammy --build-arg APP_VER=10.1.4 -f Dockerfile -t izdock/tomcat .
+tools/make-updates.sh           # report only (exit 10 = updates available)
+tools/make-updates.sh --apply   # rewrite versions.env, then rebuild and test
 ```
+
+Lint (shellcheck, hadolint) and the pre-commit hook (lint + gitleaks):
+```
+tools/lint.sh
+git config core.hooksPath .githooks
+```
+
+# CI (Gitea Actions)
+- `tomcat-build` ([.gitea/workflows/build.yml](.gitea/workflows/build.yml)): on push to master, every Monday
+  (weekly rebuild for OS security updates) and by hand. Builds every variant into the Gitea registry,
+  verifies the image, then copies the same digest to Docker Hub `izdock/tomcat`.
+- `tomcat-promote`: manual, publishes again on Docker Hub an image already in the Gitea registry.
+- `lint`, `gitleaks`: on every push.
 
 # Quick reference
 

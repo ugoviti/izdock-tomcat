@@ -1,0 +1,118 @@
+name: tomcat build & push
+description: Build one Tomcat variant from versions.env, push it to the private registry and verify it (Docker Hub is reached only through .gitea/actions/promote)
+
+inputs:
+  variant:
+    description: Tomcat major of a TOMCAT<variant>_* block of versions.env (eg. 9, 10)
+    required: true
+  latest:
+    description: "'true' or 'false': also tag latest"
+    default: 'false'
+  build-number:
+    description: Build number tag suffix (<version>-<build-number>)
+    default: ''
+  build-args:
+    description: Extra newline separated build args (KEY=value)
+    default: ''
+  platforms:
+    default: linux/amd64
+  registry-host:
+    description: Private registry host (secrets.REGISTRY_HOST)
+    required: true
+  registry-repository:
+    default: initzero/tomcat
+  registry-username:
+    required: true
+  registry-token:
+    required: true
+
+outputs:
+  version:
+    description: Tomcat version of the variant (versions.env)
+    value: ${{ steps.ver.outputs.version }}
+  image:
+    description: Private image path (host/repository)
+    value: ${{ steps.login.outputs.image }}
+  source-tag:
+    description: "The most specific tag pushed (<version>-<build-number>, or <version>), the source for promote"
+    value: ${{ steps.ver.outputs.source_tag }}
+
+runs:
+  using: composite
+  steps:
+    - name: resolve versions
+      id: ver
+      shell: bash
+      env:
+        VARIANT: ${{ inputs.variant }}
+        BUILD_NUMBER: ${{ inputs.build-number }}
+      run: |
+        set -euo pipefail
+        . build/lib.sh
+        load_versions versions.env
+        key="TOMCAT${VARIANT}_VER"
+        from=$(variant_image "$VARIANT")
+        version=${!key}
+        {
+          echo "version=$version"
+          echo "image_from=$from"
+          echo "source_tag=${version}${BUILD_NUMBER:+-$BUILD_NUMBER}"
+          echo "app_build_commit=${GITHUB_SHA::7}"
+          echo "app_build_date=$(date +%s)"
+          # ISO week: the cached OS upgrade layer is rebuilt at least once a week
+          echo "os_update_stamp=$(date -u +%G-W%V)"
+        } >> "$GITHUB_OUTPUT"
+        echo "tomcat${VARIANT}: ${version} from ${from}"
+
+    - name: registry login
+      id: login
+      uses: ./.gitea/actions/registry-login
+      with:
+        registry-host: ${{ inputs.registry-host }}
+        registry-repository: ${{ inputs.registry-repository }}
+        registry-username: ${{ inputs.registry-username }}
+        registry-token: ${{ inputs.registry-token }}
+
+    - name: image tags
+      id: tags
+      uses: ./.gitea/actions/image-tags
+      with:
+        images: ${{ steps.login.outputs.image }}
+        version: ${{ steps.ver.outputs.version }}
+        latest: ${{ inputs.latest }}
+        build-number: ${{ inputs.build-number }}
+
+    - name: build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: Dockerfile
+        platforms: ${{ inputs.platforms }}
+        push: true
+        # no provenance attestation: it would embed the private build source URL in the image
+        provenance: false
+        tags: ${{ steps.tags.outputs.tags }}
+        build-args: |
+          IMAGE_FROM=${{ steps.ver.outputs.image_from }}
+          APP_VER=${{ steps.ver.outputs.version }}
+          APP_VER_BUILD=${{ inputs.build-number }}
+          APP_BUILD_COMMIT=${{ steps.ver.outputs.app_build_commit }}
+          APP_BUILD_DATE=${{ steps.ver.outputs.app_build_date }}
+          OS_UPDATE_STAMP=${{ steps.ver.outputs.os_update_stamp }}
+          ${{ inputs.build-args }}
+        # build cache in the Gitea registry, one per variant (replaces the Drone volume cache)
+        cache-from: type=registry,ref=${{ steps.login.outputs.image }}:buildcache-${{ inputs.variant }}
+        cache-to: type=registry,ref=${{ steps.login.outputs.image }}:buildcache-${{ inputs.variant }},mode=max,image-manifest=true,oci-mediatypes=true
+
+    # post-build checks on the image just pushed (verify-image.sh runs inside the image):
+    # with push:true the image is not in the local docker daemon, so pull it back
+    - name: verify image
+      shell: bash
+      env:
+        IMAGE: ${{ steps.login.outputs.image }}:${{ steps.ver.outputs.source_tag }}
+        VERSION: ${{ steps.ver.outputs.version }}
+        SCRIPT: ${{ github.action_path }}/verify-image.sh
+      run: |
+        set -euo pipefail
+        docker pull -q "$IMAGE"
+        docker run -i --rm --entrypoint "" -e TOMCAT_VER_EXPECTED="$VERSION" "$IMAGE" bash -s < "$SCRIPT"
