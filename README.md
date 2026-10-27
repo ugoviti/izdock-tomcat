@@ -126,7 +126,8 @@ git config core.hooksPath .githooks
 # CI (Gitea Actions)
 - `tomcat-build` ([.gitea/workflows/build.yml](.gitea/workflows/build.yml)): on push to master, every Monday
   (weekly rebuild for OS security updates) and by hand. Builds every variant into the Gitea registry,
-  verifies the image, then copies the same digest to Docker Hub `izdock/tomcat`.
+  verifies the image, then copies the same digest to Docker Hub `izdock/tomcat`. When every variant is
+  published: gitleaks scan, then the commit is pushed to GitHub (the only way code reaches GitHub).
 - `tomcat-promote`: manual, publishes again on Docker Hub an image already in the Gitea registry.
 - `lint`, `gitleaks`: on every push.
 

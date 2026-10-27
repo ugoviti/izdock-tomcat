@@ -4,11 +4,15 @@
 # One job per variant (Tomcat major), versions from versions.env (single source of truth):
 #   1. build and push to the Gitea registry, then verify the image (.gitea/actions/build-push)
 #   2. only if the verify passes: copy the same digest to Docker Hub (.gitea/actions/promote)
+#   3. only if every variant was published on Docker Hub: gitleaks scan of the full history
+#      (private rules), then push the built commit to GitHub master (fast-forward only).
+#      GitHub is never pushed by hand: it gets only the commits of a release that passed.
 # Tags (.gitea/actions/image-tags): X.Y.Z, X.Y, X, X.Y.Z-<run_number> [, latest on the 9 variant]
 # To publish again an image already in the Gitea registry: tomcat-promote (manual).
 #
 # Required secrets:   REGISTRY_HOST, REGISTRY_USERNAME, REGISTRY_TOKEN,
-#                     DOCKER_USERNAME, DOCKER_PASSWORD, MATRIX_PASSWORD
+#                     DOCKER_USERNAME, DOCKER_PASSWORD, GH_PUSH_TOKEN, MATRIX_PASSWORD
+# Optional secret:    GITLEAKS_CONFIG (private gitleaks rules)
 # Required variables: MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER
 
 name: tomcat-build
@@ -23,7 +27,7 @@ on:
   workflow_dispatch:
     inputs:
       dockerhub:
-        description: Also publish on Docker Hub (after the verify)
+        description: Also publish on Docker Hub (after the verify), then push the commit to GitHub
         type: boolean
         default: true
 
@@ -33,6 +37,8 @@ concurrency:
 
 env:
   DOCKERHUB_IMAGE: izdock/tomcat
+  PUBLIC_REPO_URL: https://github.com/ugoviti/izdock-tomcat.git
+  PUBLIC_BRANCH: master
 
 jobs:
   build:
@@ -86,6 +92,43 @@ jobs:
         with:
           status: ${{ job.status }}
           label: tomcat${{ matrix.variant }} ${{ steps.build.outputs.version || '?' }} (${{ github.event_name }}) dockerhub:${{ steps.hub.outcome == 'success' && 'yes' || 'no' }}
+          password: ${{ secrets.MATRIX_PASSWORD }}
+          homeserver: ${{ vars.MATRIX_HOMESERVER }}
+          room-id: ${{ vars.MATRIX_ROOM_ID }}
+          user: ${{ vars.MATRIX_USER }}
+
+  # the release passed (every variant built, verified and on Docker Hub): publish the code
+  github:
+    needs: build
+    if: github.event_name != 'workflow_dispatch' || inputs.dockerhub == true || inputs.dockerhub == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: ./.gitea/actions/gitleaks
+        with:
+          config: ${{ secrets.GITLEAKS_CONFIG }}
+
+      - name: push to github
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
+        run: |
+          set -eu
+          AUTH=$(printf 'x-access-token:%s' "$GH_PUSH_TOKEN" | base64 -w0)
+          # fast-forward only (no force): GitHub rejects a commit that does not contain its master
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH}" \
+            push "$PUBLIC_REPO_URL" "${GITHUB_SHA}:refs/heads/${PUBLIC_BRANCH}"
+
+      - name: matrix notify
+        if: always()
+        uses: ./.gitea/actions/matrix-notify
+        with:
+          status: ${{ job.status }}
+          label: github push ${{ env.PUBLIC_BRANCH }}
           password: ${{ secrets.MATRIX_PASSWORD }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
           room-id: ${{ vars.MATRIX_ROOM_ID }}
