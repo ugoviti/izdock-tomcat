@@ -10,7 +10,7 @@
 # Tags (.gitea/actions/image-tags): X.Y.Z, X.Y, X, X.Y.Z-<run_number> [, latest on the 9 variant]
 # To publish again an image already in the Gitea registry: tomcat-promote (manual).
 #
-# Required secrets:   REGISTRY_HOST, REGISTRY_USERNAME, REGISTRY_TOKEN,
+# Required secrets:   REGISTRY_HOST (or variable), REGISTRY_USERNAME, REGISTRY_TOKEN,
 #                     DOCKER_USERNAME, DOCKER_PASSWORD, GH_PUSH_TOKEN, MATRIX_PASSWORD
 # Optional secret:    GITLEAKS_CONFIG (private gitleaks rules)
 # Required variables: MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER
@@ -64,7 +64,7 @@ jobs:
           variant: ${{ matrix.variant }}
           latest: ${{ matrix.latest }}
           build-number: ${{ gitea.run_number }}
-          registry-host: ${{ secrets.REGISTRY_HOST }}
+          registry-host: ${{ secrets.REGISTRY_HOST || vars.REGISTRY_HOST }}
           registry-username: ${{ secrets.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.REGISTRY_TOKEN }}
 
