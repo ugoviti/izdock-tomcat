@@ -79,7 +79,7 @@ jobs:
         uses: ./.gitea/actions/matrix-notify
         with:
           status: ${{ job.status }}
-          label: updates ${{ steps.pr.outputs.number && format('PR #{0}', steps.pr.outputs.number) || '' }}
+          label: "updates ${{ steps.pr.outputs.number && format('PR #{0}', steps.pr.outputs.number) || '' }}"
           details: ${{ steps.check.outputs.report }}
           password: ${{ secrets.MATRIX_PASSWORD }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
