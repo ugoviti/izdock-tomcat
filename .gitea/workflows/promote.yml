@@ -8,6 +8,7 @@
 #
 # Required secrets:   REGISTRY_HOST (or variable), REGISTRY_USERNAME, REGISTRY_TOKEN, DOCKER_USERNAME,
 #                     DOCKER_PASSWORD, MATRIX_PASSWORD
+# Optional secret:    DOCKERHUB_README_TOKEN (Read, Write, Delete) for the description, else DOCKER_PASSWORD
 # Required variables: MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER
 
 name: tomcat-promote
@@ -62,6 +63,7 @@ jobs:
           dockerhub-password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: promote to docker hub
+        id: promote
         uses: ./.gitea/actions/promote
         with:
           source: ${{ steps.login.outputs.image }}:${{ inputs.source }}
@@ -70,12 +72,21 @@ jobs:
           build-number: ${{ steps.src.outputs.build }}
           dockerhub-image: ${{ env.DOCKERHUB_IMAGE }}
 
+      - name: docker hub readme
+        id: readme
+        continue-on-error: true
+        uses: ./.gitea/actions/dockerhub-readme
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          token: ${{ secrets.DOCKERHUB_README_TOKEN || secrets.DOCKER_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_IMAGE }}
+
       - name: matrix notify
         if: always()
         uses: ./.gitea/actions/matrix-notify
         with:
           status: ${{ job.status }}
-          label: publish ${{ inputs.source }} latest:${{ inputs.latest }}
+          label: publish ${{ inputs.source }} latest:${{ inputs.latest }} readme:${{ steps.readme.outcome || 'skipped' }}
           password: ${{ secrets.MATRIX_PASSWORD }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
           room-id: ${{ vars.MATRIX_ROOM_ID }}

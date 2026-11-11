@@ -21,12 +21,17 @@
 #   REGISTRY_TOKEN      secret  Gitea token of that user, scope package: Read and Write
 #   DOCKER_USERNAME     secret  Docker Hub user with write access to izdock/tomcat
 #   DOCKER_PASSWORD     secret  Docker Hub personal access token, Read & Write
+#   DOCKERHUB_README_TOKEN  secret, optional  Docker Hub personal access token, Read, Write, Delete:
+#                           needed to update the repository description from README.md
+#                           (.gitea/actions/dockerhub-readme); without it DOCKER_PASSWORD is tried
 #   GH_PUSH_TOKEN       secret  GitHub fine-grained token, ugoviti/izdock-tomcat only, Contents: Read and write
 #   MATRIX_PASSWORD     secret  password of the Matrix bot
 #   MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER   variables  Matrix homeserver URL, room id, bot user id
 #   GITLEAKS_CONFIG     secret, optional  private gitleaks rules (TOML) extending the repository ones:
 #                                           [extend] path = ".gitleaks.toml"
-# Runner label: ubuntu-latest, with Docker. The Docker Hub description is updated by hand from README.md.
+# Runner label: ubuntu-latest, with Docker. After every release the Docker Hub description is
+# updated from README.md (github job); a failure there is reported (readme: in the Matrix notify)
+# but does not fail the release.
 
 name: tomcat-build
 
@@ -126,6 +131,16 @@ jobs:
         with:
           config: ${{ secrets.GITLEAKS_CONFIG }}
 
+      # once per release, after every variant is on Docker Hub
+      - name: docker hub readme
+        id: readme
+        continue-on-error: true
+        uses: ./.gitea/actions/dockerhub-readme
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          token: ${{ secrets.DOCKERHUB_README_TOKEN || secrets.DOCKER_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_IMAGE }}
+
       - name: push to github
         env:
           GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
@@ -141,7 +156,7 @@ jobs:
         uses: ./.gitea/actions/matrix-notify
         with:
           status: ${{ job.status }}
-          label: github push ${{ env.PUBLIC_BRANCH }}
+          label: github push ${{ env.PUBLIC_BRANCH }} readme:${{ steps.readme.outcome || 'skipped' }}
           password: ${{ secrets.MATRIX_PASSWORD }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
           room-id: ${{ vars.MATRIX_ROOM_ID }}
