@@ -14,19 +14,21 @@
 #
 # Setup: Settings > Actions of the repository or of the organization (shared by its repositories);
 # a repository secret wins over the organization one with the same name.
-#   REGISTRY_HOST       secret or variable  host of the private Gitea registry (no https://);
+#   PACKAGES_HOST       variable (optional) host of the Gitea registry; default: the Gitea instance that
+#                                           runs the job (github.server_url, eg. git.quantico.srl), so the
+#                                           packages stay next to the repository. REGISTRY_HOST is not used.
 #                                           image <host>/initzero/tomcat (.gitea/actions/registry-login),
 #                                           build cache in its buildcache-<variant> tags
-#   REGISTRY_USERNAME   secret  Gitea user allowed to write the packages of the owner
-#   REGISTRY_TOKEN      secret  Gitea token of that user, scope package: Read and Write
+#   PACKAGES_USERNAME   variable Gitea user allowed to write the packages of the owner
+#   PACKAGES_TOKEN      secret  Gitea token of that user, scope package: Read and Write
 #   DOCKER_USERNAME     secret  Docker Hub user with write access to izdock/tomcat
 #   DOCKER_PASSWORD     secret  Docker Hub personal access token, Read & Write
 #   DOCKERHUB_README_TOKEN  secret, optional  Docker Hub personal access token, Read, Write, Delete:
 #                           needed to update the repository description from README.md
 #                           (.gitea/actions/dockerhub-readme); without it DOCKER_PASSWORD is tried
 #   GH_PUSH_TOKEN       secret  GitHub fine-grained token, ugoviti/izdock-tomcat only, Contents: Read and write
-#   MATRIX_PASSWORD     secret  password of the Matrix bot
-#   MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USER   variables  Matrix homeserver URL, room id, bot user id
+#   MATRIX_TOKEN        secret  access token of the Matrix bot (the homeserver has no password login)
+#   MATRIX_HOMESERVER, MATRIX_ROOM_ID, MATRIX_USERNAME   variables  Matrix homeserver (or its domain: .well-known is followed), room id, bot user id
 #   GITLEAKS_CONFIG     secret, optional  private gitleaks rules (TOML) extending the repository ones:
 #                                           [extend] path = ".gitleaks.toml"
 # Runner label: ubuntu-latest, with Docker. After every release the Docker Hub description is
@@ -82,9 +84,9 @@ jobs:
           variant: ${{ matrix.variant }}
           latest: ${{ matrix.latest }}
           build-number: ${{ gitea.run_number }}
-          registry-host: ${{ secrets.REGISTRY_HOST || vars.REGISTRY_HOST }}
-          registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.REGISTRY_TOKEN }}
+          registry-host: ${{ vars.PACKAGES_HOST || github.server_url }}
+          registry-username: ${{ vars.PACKAGES_USERNAME }}
+          registry-token: ${{ secrets.PACKAGES_TOKEN }}
 
       - name: login docker hub
         id: hub
@@ -110,10 +112,10 @@ jobs:
         with:
           status: ${{ job.status }}
           label: tomcat${{ matrix.variant }} ${{ steps.build.outputs.version || '?' }} (${{ github.event_name }}) dockerhub:${{ steps.hub.outcome == 'success' && 'yes' || 'no' }}
-          password: ${{ secrets.MATRIX_PASSWORD }}
+          token: ${{ secrets.MATRIX_TOKEN }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
           room-id: ${{ vars.MATRIX_ROOM_ID }}
-          user: ${{ vars.MATRIX_USER }}
+          user: ${{ vars.MATRIX_USERNAME }}
 
   # the release passed (every variant built, verified and on Docker Hub): publish the code
   github:
@@ -157,7 +159,7 @@ jobs:
         with:
           status: ${{ job.status }}
           label: github push ${{ env.PUBLIC_BRANCH }} readme:${{ steps.readme.outcome || 'skipped' }}
-          password: ${{ secrets.MATRIX_PASSWORD }}
+          token: ${{ secrets.MATRIX_TOKEN }}
           homeserver: ${{ vars.MATRIX_HOMESERVER }}
           room-id: ${{ vars.MATRIX_ROOM_ID }}
-          user: ${{ vars.MATRIX_USER }}
+          user: ${{ vars.MATRIX_USERNAME }}
